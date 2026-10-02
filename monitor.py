@@ -219,44 +219,60 @@ class Monitor:
                 continue
             detail = self.browser_context.new_page()
             try:
-                detail.goto(url, wait_until="domcontentloaded", timeout=45_000)
-                detail.wait_for_selector("time[datetime]", timeout=25_000)
-                published = detail.locator("time[datetime]").first.get_attribute("datetime")
-                video_url = self.optional_attribute(
-                    detail, "meta[property='og:video']", "content"
-                ) or self.embedded_video_url(detail)
-                thumbnail_url = self.optional_attribute(
-                    detail, "meta[property='og:image']", "content"
-                )
-                description = self.optional_attribute(
-                    detail, "meta[property='og:description']", "content"
-                )
-                title = self.optional_attribute(detail, "meta[property='og:title']", "content")
-                if not published or not video_url:
-                    raise RuntimeError(f"Reel {match.group(1)} has no timestamp or video URL")
-                caption = ""
-                for value in (title, description):
-                    if not value:
-                        continue
-                    caption_match = re.search(
-                        r'(?:on Instagram|\d{4}):\s*["“](.*?)["”]\.?(?:\s|$)', value, re.S
+                try:
+                    detail.goto(url, wait_until="domcontentloaded", timeout=45_000)
+                    detail.wait_for_selector("time[datetime]", timeout=25_000)
+                    published = detail.locator("time[datetime]").first.get_attribute("datetime")
+                    video_url = self.optional_attribute(
+                        detail, "meta[property='og:video']", "content"
+                    ) or self.embedded_video_url(detail)
+                    thumbnail_url = self.optional_attribute(
+                        detail, "meta[property='og:image']", "content"
                     )
-                    if caption_match:
-                        caption = caption_match.group(1).strip()
-                        break
-                reels.append(
-                    Reel(
-                        reel_id=match.group(1),
-                        profile=profile,
-                        url=f"https://www.instagram.com/reel/{match.group(1)}/",
-                        caption=caption,
-                        published_at=datetime.fromisoformat(published).astimezone(UTC).isoformat(),
-                        video_url=video_url,
-                        thumbnail_url=thumbnail_url or "",
+                    description = self.optional_attribute(
+                        detail, "meta[property='og:description']", "content"
                     )
-                )
+                    title = self.optional_attribute(
+                        detail, "meta[property='og:title']", "content"
+                    )
+                    if not published or not video_url:
+                        raise RuntimeError("timestamp or downloadable video URL is unavailable")
+                    caption = ""
+                    for value in (title, description):
+                        if not value:
+                            continue
+                        caption_match = re.search(
+                            r'(?:on Instagram|\d{4}):\s*["“](.*?)["”]\.?(?:\s|$)',
+                            value,
+                            re.S,
+                        )
+                        if caption_match:
+                            caption = caption_match.group(1).strip()
+                            break
+                    reels.append(
+                        Reel(
+                            reel_id=match.group(1),
+                            profile=profile,
+                            url=f"https://www.instagram.com/reel/{match.group(1)}/",
+                            caption=caption,
+                            published_at=datetime.fromisoformat(published)
+                            .astimezone(UTC)
+                            .isoformat(),
+                            video_url=video_url,
+                            thumbnail_url=thumbnail_url or "",
+                        )
+                    )
+                except Exception as exc:
+                    LOG.warning(
+                        "Skipping unreadable Reel %s from @%s: %s",
+                        match.group(1),
+                        profile.instagram,
+                        exc,
+                    )
             finally:
                 detail.close()
+        if not reels:
+            raise RuntimeError(f"No readable reels found for @{profile.instagram}")
         return sorted(reels, key=lambda item: item.published_at, reverse=True)
 
     def download(self, url: str, destination: Path) -> None:
