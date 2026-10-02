@@ -17,6 +17,7 @@ import boto3
 import httpx
 import instaloader
 from botocore.exceptions import ClientError
+from playwright.sync_api import sync_playwright
 
 LOG = logging.getLogger("reel-monitor")
 COURTESY = "Courtesy"
@@ -95,6 +96,7 @@ class Monitor:
         self.public_base = required("PUBLIC_BASE_URL").rstrip("/")
         self.scan_limit = int(os.getenv("SCAN_LIMIT", "5"))
         self.max_new = int(os.getenv("MAX_NEW_REELS_PER_PROFILE", "2"))
+        self.profile_batch_size = int(os.getenv("PROFILE_BATCH_SIZE", "5"))
         self.session_username = required("INSTAGRAM_SESSION_USERNAME")
         self.session_file = Path(required("INSTAGRAM_SESSION_FILE"))
         endpoint = os.getenv("S3_ENDPOINT_URL", "").strip() or None
@@ -118,6 +120,20 @@ class Monitor:
             fatal_status_codes=[401, 403, 429],
         )
         self.loader.load_session_from_file(self.session_username, self.session_file)
+        self.playwright = sync_playwright().start()
+        self.browser = self.playwright.chromium.launch(headless=True)
+        self.browser_context = self.browser.new_context()
+        self.browser_context.add_cookies(
+            [
+                {
+                    "name": name,
+                    "value": str(value),
+                    "domain": ".instagram.com",
+                    "path": "/",
+                }
+                for name, value in self.loader.context._session.cookies.get_dict().items()
+            ]
+        )
 
     @staticmethod
     def load_profiles() -> list[Profile]:
@@ -144,26 +160,66 @@ class Monitor:
         return profiles
 
     def discover(self, profile: Profile) -> list[Reel]:
-        account = instaloader.Profile.from_username(self.loader.context, profile.instagram)
-        if account.is_private:
-            raise PermissionError(f"@{profile.instagram} is private")
-        reels: list[Reel] = []
-        for post in account.get_reels():
-            if len(reels) >= self.scan_limit:
-                break
-            if not post.is_video or not post.video_url:
-                continue
-            reels.append(
-                Reel(
-                    reel_id=post.shortcode,
-                    profile=profile,
-                    url=f"https://www.instagram.com/reel/{post.shortcode}/",
-                    caption=post.caption or "",
-                    published_at=post.date_utc.replace(tzinfo=UTC).isoformat(),
-                    video_url=str(post.video_url),
-                    thumbnail_url=str(post.url),
-                )
+        page = self.browser_context.new_page()
+        try:
+            page.goto(
+                f"https://www.instagram.com/{profile.instagram}/reels/",
+                wait_until="domcontentloaded",
+                timeout=45_000,
             )
+            body = page.locator("body").inner_text().lower()
+            if "this account is private" in body:
+                raise PermissionError(f"@{profile.instagram} is private")
+            if "challenge" in page.url or "verify your identity" in body or "captcha" in body:
+                raise RuntimeError("Instagram login challenge requires manual session renewal")
+            page.wait_for_selector("a[href*='/reel/']", timeout=30_000)
+            hrefs = page.locator("a[href*='/reel/']").evaluate_all(
+                "els => [...new Set(els.map(e => e.href))]"
+            )
+        finally:
+            page.close()
+
+        reels: list[Reel] = []
+        for url in hrefs[: self.scan_limit]:
+            match = re.search(r"/reel/([^/?#]+)/?", url)
+            if not match:
+                continue
+            detail = self.browser_context.new_page()
+            try:
+                detail.goto(url, wait_until="domcontentloaded", timeout=45_000)
+                detail.wait_for_selector("time[datetime]", timeout=25_000)
+                published = detail.locator("time[datetime]").first.get_attribute("datetime")
+                video_url = detail.locator("meta[property='og:video']").get_attribute("content")
+                thumbnail_url = detail.locator("meta[property='og:image']").get_attribute("content")
+                description = detail.locator(
+                    "meta[property='og:description']"
+                ).get_attribute("content")
+                title = detail.locator("meta[property='og:title']").get_attribute("content")
+                if not published or not video_url:
+                    raise RuntimeError(f"Reel {match.group(1)} has no timestamp or video URL")
+                caption = ""
+                for value in (title, description):
+                    if not value:
+                        continue
+                    caption_match = re.search(
+                        r'(?:on Instagram|\d{4}):\s*["“](.*?)["”]\.?(?:\s|$)', value, re.S
+                    )
+                    if caption_match:
+                        caption = caption_match.group(1).strip()
+                        break
+                reels.append(
+                    Reel(
+                        reel_id=match.group(1),
+                        profile=profile,
+                        url=f"https://www.instagram.com/reel/{match.group(1)}/",
+                        caption=caption,
+                        published_at=datetime.fromisoformat(published).astimezone(UTC).isoformat(),
+                        video_url=video_url,
+                        thumbnail_url=thumbnail_url or "",
+                    )
+                )
+            finally:
+                detail.close()
         return sorted(reels, key=lambda item: item.published_at, reverse=True)
 
     def download(self, url: str, destination: Path) -> None:
@@ -285,8 +341,11 @@ class Monitor:
     def execute(self) -> None:
         profiles = self.load_profiles()
         state = self.state_store.load()
+        cursor = int((state or {}).get("profileCursor", 0)) % len(profiles)
+        batch_size = min(self.profile_batch_size, len(profiles))
+        selected = [profiles[(cursor + offset) % len(profiles)] for offset in range(batch_size)]
         discovered: list[tuple[Profile, list[Reel]]] = []
-        for profile in profiles:
+        for profile in selected:
             try:
                 discovered.append((profile, self.discover(profile)))
             except Exception as exc:
@@ -301,6 +360,7 @@ class Monitor:
                 "version": 1,
                 "initializedAt": datetime.now(UTC).isoformat(),
                 "profilesBaselined": [],
+                "profileCursor": (cursor + batch_size) % len(profiles),
                 "reels": {},
             }
             for _, reels in discovered:
@@ -318,6 +378,7 @@ class Monitor:
             return
 
         known = set(state.get("reels", {}))
+        state["profileCursor"] = (cursor + batch_size) % len(profiles)
         baselined = set(state.get("profilesBaselined", []))
         queues: list[list[Reel]] = []
         state_changed = False
@@ -346,6 +407,8 @@ class Monitor:
         if state_changed:
             state["profilesBaselined"] = sorted(baselined)
             self.state_store.save(state)
+        else:
+            self.state_store.save(state)
 
         published = 0
         for index in range(max((len(queue) for queue in queues), default=0)):
@@ -354,9 +417,18 @@ class Monitor:
                     continue
                 self.process(queue[index], state)
                 published += 1
-        LOG.info("Run finished; published=%d profiles=%d", published, len(profiles))
+        LOG.info("Run finished; published=%d scanned=%d total_profiles=%d", published, len(selected), len(profiles))
+
+    def close(self) -> None:
+        self.browser_context.close()
+        self.browser.close()
+        self.playwright.stop()
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    Monitor().execute()
+    monitor = Monitor()
+    try:
+        monitor.execute()
+    finally:
+        monitor.close()

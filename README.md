@@ -1,6 +1,6 @@
 # Instagram Reel Monitor
 
-An hourly GitHub Actions worker that monitors configured Instagram profiles, rejects duplicate
+A GitHub Actions worker that runs every 15 minutes, monitors configured Instagram profiles, rejects duplicate
 Reel IDs, converts videos to mobile-safe MP4, uploads media to S3, and publishes clips to the app
 API. It runs in GitHub's cloud, so the laptop can be switched off.
 
@@ -37,6 +37,7 @@ records a baseline without publishing old reels. Later runs publish only IDs not
 - Global Reel-ID deduplication across every profile.
 - Reel ID is reserved in S3 before the API POST. An ambiguous API response is never blindly
   retried, preventing duplicate posts.
+- Profiles are scanned in rotating batches of five to reduce Instagram rate-limit pressure.
 - Maximum two new reels per profile per run, published round-robin across profiles.
 - Caption starts with `Courtesy @InstagramHandle` and includes the source caption.
 - `cityCode` is always sent as a lowercase city slug.

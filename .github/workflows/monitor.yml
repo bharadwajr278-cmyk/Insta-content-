@@ -2,7 +2,7 @@ name: Monitor Instagram reels
 
 on:
   schedule:
-    - cron: "17 * * * *"
+    - cron: "7,22,37,52 * * * *"
   workflow_dispatch:
 
 concurrency:
@@ -30,6 +30,7 @@ jobs:
       STATE_OBJECT_KEY: automation/instagram-reel-monitor/state.json
       SCAN_LIMIT: "5"
       MAX_NEW_REELS_PER_PROFILE: "2"
+      PROFILE_BATCH_SIZE: "5"
     steps:
       - uses: actions/checkout@v4
 
@@ -44,6 +45,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends ffmpeg
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
 
       - name: Restore encrypted Instagram session
         env:
