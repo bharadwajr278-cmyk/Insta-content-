@@ -159,6 +159,39 @@ class Monitor:
             )
         return profiles
 
+    @staticmethod
+    def optional_attribute(page: Any, selector: str, attribute: str) -> str | None:
+        locator = page.locator(selector)
+        if locator.count() == 0:
+            return None
+        return locator.first.get_attribute(attribute, timeout=3_000)
+
+    @staticmethod
+    def embedded_video_url(page: Any) -> str | None:
+        direct = Monitor.optional_attribute(page, "video[src]", "src")
+        if direct and direct.startswith("http"):
+            return direct
+        html = page.content()
+        for pattern in (
+            r'"video_url"\s*:\s*"(https:[^"]+)"',
+            r'"contentUrl"\s*:\s*"(https:[^"]+)"',
+        ):
+            match = re.search(pattern, html)
+            if match:
+                return match.group(1).replace(r"\u0026", "&").replace(r"\/", "/")
+        resources = page.evaluate(
+            "() => performance.getEntriesByType('resource').map(e => e.name)"
+        )
+        return next(
+            (
+                url
+                for url in resources
+                if isinstance(url, str)
+                and (".mp4" in url.lower() or "fbcdn.net" in url.lower() and "video" in url.lower())
+            ),
+            None,
+        )
+
     def discover(self, profile: Profile) -> list[Reel]:
         page = self.browser_context.new_page()
         try:
@@ -189,12 +222,16 @@ class Monitor:
                 detail.goto(url, wait_until="domcontentloaded", timeout=45_000)
                 detail.wait_for_selector("time[datetime]", timeout=25_000)
                 published = detail.locator("time[datetime]").first.get_attribute("datetime")
-                video_url = detail.locator("meta[property='og:video']").get_attribute("content")
-                thumbnail_url = detail.locator("meta[property='og:image']").get_attribute("content")
-                description = detail.locator(
-                    "meta[property='og:description']"
-                ).get_attribute("content")
-                title = detail.locator("meta[property='og:title']").get_attribute("content")
+                video_url = self.optional_attribute(
+                    detail, "meta[property='og:video']", "content"
+                ) or self.embedded_video_url(detail)
+                thumbnail_url = self.optional_attribute(
+                    detail, "meta[property='og:image']", "content"
+                )
+                description = self.optional_attribute(
+                    detail, "meta[property='og:description']", "content"
+                )
+                title = self.optional_attribute(detail, "meta[property='og:title']", "content")
                 if not published or not video_url:
                     raise RuntimeError(f"Reel {match.group(1)} has no timestamp or video URL")
                 caption = ""
