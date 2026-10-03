@@ -501,12 +501,7 @@ class Monitor:
             return
 
         known = set(state.get("reels", {}))
-        if priority_names:
-            successful = {profile.instagram.casefold() for profile, _ in discovered}
-            state["priorityProfiles"] = [
-                name for name in priority_names if name not in successful
-            ]
-        else:
+        if not priority_names:
             state["profileCursor"] = (cursor + batch_size) % len(profiles)
         baselined = set(state.get("profilesBaselined", []))
         queues: list[list[Reel]] = []
@@ -553,6 +548,12 @@ class Monitor:
                     continue
                 self.process(queue[index], state)
                 published += 1
+        if priority_names:
+            successful = {profile.instagram.casefold() for profile, _ in discovered}
+            state["priorityProfiles"] = [
+                name for name in priority_names if name not in successful
+            ]
+            self.state_store.save(state)
         LOG.info("Run finished; published=%d scanned=%d total_profiles=%d", published, len(selected), len(profiles))
 
     def close(self) -> None:
