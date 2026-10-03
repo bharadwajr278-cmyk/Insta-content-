@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import base64
 import os
 import re
 import subprocess
@@ -11,7 +12,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
-from urllib.parse import quote
+from urllib.parse import parse_qsl, parse_qs, quote, urlencode, urlsplit, urlunsplit
 
 import boto3
 import httpx
@@ -61,6 +62,7 @@ class Reel:
     caption: str
     published_at: str
     video_url: str
+    audio_url: str | None
     thumbnail_url: str
 
 
@@ -167,30 +169,48 @@ class Monitor:
         return locator.first.get_attribute(attribute, timeout=3_000)
 
     @staticmethod
-    def embedded_video_url(page: Any) -> str | None:
+    def embedded_media_urls(page: Any) -> tuple[str | None, str | None]:
         direct = Monitor.optional_attribute(page, "video[src]", "src")
-        if direct and direct.startswith("http"):
-            return direct
+        video_url = direct if direct and direct.startswith("http") else None
         html = page.content()
-        for pattern in (
-            r'"video_url"\s*:\s*"(https:[^"]+)"',
-            r'"contentUrl"\s*:\s*"(https:[^"]+)"',
-        ):
-            match = re.search(pattern, html)
-            if match:
-                return match.group(1).replace(r"\u0026", "&").replace(r"\/", "/")
+        if not video_url:
+            for pattern in (
+                r'"video_url"\s*:\s*"(https:[^"]+)"',
+                r'"contentUrl"\s*:\s*"(https:[^"]+)"',
+            ):
+                match = re.search(pattern, html)
+                if match:
+                    video_url = match.group(1).replace(r"\u0026", "&").replace(r"\/", "/")
+                    break
         resources = page.evaluate(
             "() => performance.getEntriesByType('resource').map(e => e.name)"
         )
-        return next(
-            (
-                url
-                for url in resources
-                if isinstance(url, str)
-                and (".mp4" in url.lower() or "fbcdn.net" in url.lower() and "video" in url.lower())
-            ),
-            None,
-        )
+        audio_url = None
+        for url in resources:
+            if not isinstance(url, str) or "fbcdn" not in url.lower():
+                continue
+            descriptor = ""
+            encoded = parse_qs(urlsplit(url).query).get("efg", [""])[0]
+            if encoded:
+                try:
+                    descriptor = base64.b64decode(encoded + "===").decode(errors="ignore").lower()
+                except Exception:
+                    pass
+            if "audio" in descriptor and audio_url is None:
+                audio_url = url
+            elif ("dash" in descriptor or "video" in descriptor) and video_url is None:
+                video_url = url
+        return video_url, audio_url
+
+    @staticmethod
+    def full_media_url(url: str) -> str:
+        parts = urlsplit(url)
+        query = [
+            (name, value)
+            for name, value in parse_qsl(parts.query, keep_blank_values=True)
+            if name.casefold() not in {"bytestart", "byteend"}
+        ]
+        return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
 
     def discover(self, profile: Profile) -> list[Reel]:
         page = self.browser_context.new_page()
@@ -223,9 +243,10 @@ class Monitor:
                     detail.goto(url, wait_until="domcontentloaded", timeout=45_000)
                     detail.wait_for_selector("time[datetime]", timeout=25_000)
                     published = detail.locator("time[datetime]").first.get_attribute("datetime")
+                    resource_video_url, audio_url = self.embedded_media_urls(detail)
                     video_url = self.optional_attribute(
                         detail, "meta[property='og:video']", "content"
-                    ) or self.embedded_video_url(detail)
+                    ) or resource_video_url
                     thumbnail_url = self.optional_attribute(
                         detail, "meta[property='og:image']", "content"
                     )
@@ -259,6 +280,7 @@ class Monitor:
                             .astimezone(UTC)
                             .isoformat(),
                             video_url=video_url,
+                            audio_url=audio_url,
                             thumbnail_url=thumbnail_url or "",
                         )
                     )
@@ -276,9 +298,11 @@ class Monitor:
         return sorted(reels, key=lambda item: item.published_at, reverse=True)
 
     def download(self, url: str, destination: Path) -> None:
+        url = self.full_media_url(url)
         headers = {
             "User-Agent": self.loader.context.user_agent,
             "Referer": "https://www.instagram.com/",
+            "Range": "bytes=0-",
         }
         cookies = self.loader.context._session.cookies.get_dict()
         with httpx.Client(timeout=180, follow_redirects=True, headers=headers, cookies=cookies) as c:
@@ -291,10 +315,14 @@ class Monitor:
             raise RuntimeError("Instagram media download is unexpectedly small")
 
     @staticmethod
-    def normalize(source: Path, destination: Path) -> None:
+    def normalize(source: Path, destination: Path, audio_source: Path | None = None) -> None:
+        inputs = ["-i", str(source)]
+        audio_map = ["-map", "1:a:0?"] if audio_source else ["-map", "0:a:0?"]
+        if audio_source:
+            inputs.extend(["-i", str(audio_source)])
         run_command(
             [
-                "ffmpeg", "-y", "-i", str(source), "-map", "0:v:0", "-map", "0:a:0?",
+                "ffmpeg", "-y", *inputs, "-map", "0:v:0", *audio_map,
                 "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-pix_fmt",
                 "yuv420p", "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart",
                 str(destination),
@@ -324,6 +352,8 @@ class Monitor:
         )
         data = json.loads(result.stdout)
         stream = next(item for item in data["streams"] if item["codec_type"] == "video")
+        if not any(item.get("codec_type") == "audio" for item in data["streams"]):
+            raise RuntimeError("Final MP4 has no audio stream; refusing to publish a silent Reel")
         width, height = int(stream["width"]), int(stream["height"])
         return {
             "durationSeconds": float(data["format"]["duration"]),
@@ -364,9 +394,16 @@ class Monitor:
     def process(self, reel: Reel, state: dict[str, Any]) -> None:
         with tempfile.TemporaryDirectory(prefix="reel-") as folder:
             work = Path(folder)
-            source, video, image = work / "source.mp4", work / "video.mp4", work / "thumbnail.jpg"
+            source = work / "source.mp4"
+            audio = work / "audio.mp4"
+            video = work / "video.mp4"
+            image = work / "thumbnail.jpg"
             self.download(reel.video_url, source)
-            self.normalize(source, video)
+            audio_source = None
+            if reel.audio_url:
+                self.download(reel.audio_url, audio)
+                audio_source = audio
+            self.normalize(source, video, audio_source)
             self.thumbnail(video, image)
             meta = self.metadata(video)
             base = f"instagram/{safe(reel.profile.instagram)}/{safe(reel.reel_id)}"
