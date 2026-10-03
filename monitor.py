@@ -391,12 +391,45 @@ class Monitor:
         self.state_store.save(state)
         LOG.info("Published %s from @%s", reel.reel_id, reel.profile.instagram)
 
+    def migrate_state(self, state: dict[str, Any]) -> bool:
+        """Recover post-deployment reels incorrectly absorbed by the staggered first baseline."""
+        if int(state.get("version", 1)) >= 2:
+            return False
+        cutoff = datetime.fromisoformat(state["initializedAt"])
+        priority = set(state.get("priorityProfiles", []))
+        recovered = 0
+        for reel_id, record in list(state.get("reels", {}).items()):
+            published = record.get("publishedAt")
+            if (
+                record.get("status") == "BASELINE"
+                and published
+                and datetime.fromisoformat(published) > cutoff
+            ):
+                priority.add(str(record.get("profile", "")).casefold())
+                del state["reels"][reel_id]
+                recovered += 1
+        state["version"] = 2
+        state["priorityProfiles"] = sorted(item for item in priority if item)
+        LOG.info("State migration recovered %d post-deployment Reel IDs", recovered)
+        return True
+
     def execute(self) -> None:
         profiles = self.load_profiles()
         state = self.state_store.load()
+        if state is not None and self.migrate_state(state):
+            self.state_store.save(state)
         cursor = int((state or {}).get("profileCursor", 0)) % len(profiles)
         batch_size = min(self.profile_batch_size, len(profiles))
-        selected = [profiles[(cursor + offset) % len(profiles)] for offset in range(batch_size)]
+        profile_by_name = {profile.instagram.casefold(): profile for profile in profiles}
+        priority_names = list((state or {}).get("priorityProfiles", []))
+        if priority_names:
+            selected = [
+                profile_by_name[name]
+                for name in priority_names[:batch_size]
+                if name in profile_by_name
+            ]
+        else:
+            selected = [profiles[(cursor + offset) % len(profiles)] for offset in range(batch_size)]
         discovered: list[tuple[Profile, list[Reel]]] = []
         for profile in selected:
             try:
@@ -431,23 +464,36 @@ class Monitor:
             return
 
         known = set(state.get("reels", {}))
-        state["profileCursor"] = (cursor + batch_size) % len(profiles)
+        if priority_names:
+            successful = {profile.instagram.casefold() for profile, _ in discovered}
+            state["priorityProfiles"] = [
+                name for name in priority_names if name not in successful
+            ]
+        else:
+            state["profileCursor"] = (cursor + batch_size) % len(profiles)
         baselined = set(state.get("profilesBaselined", []))
         queues: list[list[Reel]] = []
         state_changed = False
+        deployment_cutoff = datetime.fromisoformat(state["initializedAt"])
         for profile, reels in discovered:
             profile_key = profile.instagram.casefold()
             if profile_key not in baselined:
+                pending = []
                 for reel in reels:
-                    state["reels"][reel.reel_id] = {
-                        "profile": reel.profile.instagram,
-                        "publishedAt": reel.published_at,
-                        "status": "BASELINE",
-                    }
-                    known.add(reel.reel_id)
+                    if datetime.fromisoformat(reel.published_at) <= deployment_cutoff:
+                        state["reels"][reel.reel_id] = {
+                            "profile": reel.profile.instagram,
+                            "publishedAt": reel.published_at,
+                            "status": "BASELINE",
+                        }
+                        known.add(reel.reel_id)
+                    elif reel.reel_id not in known:
+                        pending.append(reel)
                 baselined.add(profile_key)
                 state_changed = True
                 LOG.info("Baselined newly added profile @%s", profile.instagram)
+                if pending:
+                    queues.append(pending[: self.max_new])
                 continue
             pending = []
             for reel in reels:
