@@ -439,6 +439,22 @@
       "city": "Bengaluru",
       "cityCode": "bengaluru",
       "enabled": true
+    },
+    {
+      "instagramUsername": "patel_realty_kota",
+      "createdByUsername": "919818757700",
+      "state": "Rajasthan",
+      "city": "Kota",
+      "cityCode": "kota",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "gharhai_",
+      "createdByUsername": "919818757700",
+      "state": "Rajasthan",
+      "city": "Kota",
+      "cityCode": "kota",
+      "enabled": true
     }
   ]
 }
