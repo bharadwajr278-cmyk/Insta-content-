@@ -455,6 +455,38 @@
       "city": "Kota",
       "cityCode": "kota",
       "enabled": true
+    },
+    {
+      "instagramUsername": "shivshakti_property.meerut",
+      "createdByUsername": "919818695050",
+      "state": "Uttar Pradesh",
+      "city": "Meerut",
+      "cityCode": "meerut",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "equity_properties_meerut",
+      "createdByUsername": "919818695050",
+      "state": "Uttar Pradesh",
+      "city": "Meerut",
+      "cityCode": "meerut",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "shreekunjgreens_",
+      "createdByUsername": "919818695050",
+      "state": "Uttar Pradesh",
+      "city": "Meerut",
+      "cityCode": "meerut",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "meerut_propperties",
+      "createdByUsername": "919818695050",
+      "state": "Uttar Pradesh",
+      "city": "Meerut",
+      "cityCode": "meerut",
+      "enabled": true
     }
   ]
 }
