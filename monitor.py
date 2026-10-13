@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import base64
 import json
 import logging
-import base64
 import os
 import re
 import subprocess
@@ -10,9 +10,10 @@ import tempfile
 import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from itertools import islice
 from pathlib import Path
 from typing import Any
-from urllib.parse import parse_qsl, parse_qs, quote, urlencode, urlsplit, urlunsplit
+from urllib.parse import parse_qs, parse_qsl, quote, urlencode, urlsplit, urlunsplit
 
 import boto3
 import httpx
@@ -187,7 +188,9 @@ class Monitor:
         )
         audio_url = None
         for url in resources:
-            if not isinstance(url, str) or "fbcdn" not in url.lower():
+            if not isinstance(url, str) or not any(
+                host in url.lower() for host in ("fbcdn", "cdninstagram")
+            ):
                 continue
             descriptor = ""
             encoded = parse_qs(urlsplit(url).query).get("efg", [""])[0]
@@ -203,6 +206,88 @@ class Monitor:
         return video_url, audio_url
 
     @staticmethod
+    def browser_timestamp(page: Any) -> str | None:
+        """Read a Reel timestamp from DOM, Open Graph, or embedded JSON."""
+        for selector, attribute in (
+            ("time[datetime]", "datetime"),
+            ("meta[property='article:published_time']", "content"),
+            ("meta[itemprop='uploadDate']", "content"),
+        ):
+            value = Monitor.optional_attribute(page, selector, attribute)
+            if value:
+                return value
+        html = page.content()
+        for pattern in (
+            r'"uploadDate"\s*:\s*"([^"]+)"',
+            r'"datePublished"\s*:\s*"([^"]+)"',
+            r'"taken_at_timestamp"\s*:\s*(\d+)',
+            r'"taken_at"\s*:\s*(\d+)',
+        ):
+            match = re.search(pattern, html)
+            if not match:
+                continue
+            value = match.group(1)
+            if value.isdigit():
+                return datetime.fromtimestamp(int(value), UTC).isoformat()
+            return value.replace(r"\u002B", "+")
+        return None
+
+    @staticmethod
+    def contains_video(post: Any) -> bool:
+        if bool(getattr(post, "is_video", False)):
+            return True
+        if getattr(post, "typename", "") == "GraphSidecar":
+            return any(node.is_video for node in post.get_sidecar_nodes())
+        return False
+
+    def discover_instaloader(self, profile: Profile) -> list[Reel]:
+        """Use Instagram's authenticated metadata API before scraping changing HTML."""
+        remote = instaloader.Profile.from_username(self.loader.context, profile.instagram)
+        if remote.is_private and not remote.followed_by_viewer:
+            raise PermissionError(f"@{profile.instagram} is private")
+
+        candidates: dict[str, Any] = {}
+        errors: list[Exception] = []
+        for iterator_factory in (remote.get_reels, remote.get_posts):
+            try:
+                for post in islice(iterator_factory(), self.scan_limit):
+                    if self.contains_video(post):
+                        candidates.setdefault(post.shortcode, post)
+            except Exception as exc:
+                errors.append(exc)
+
+        reels: list[Reel] = []
+        for post in candidates.values():
+            try:
+                video_url = str(post.video_url)
+                if not video_url.startswith("http"):
+                    continue
+                published = post.date_utc.replace(tzinfo=UTC).isoformat()
+                reels.append(
+                    Reel(
+                        reel_id=post.shortcode,
+                        profile=profile,
+                        url=f"https://www.instagram.com/reel/{post.shortcode}/",
+                        caption=post.caption or "",
+                        published_at=published,
+                        video_url=video_url,
+                        audio_url=None,
+                        thumbnail_url=str(post.url) if post.url else "",
+                    )
+                )
+            except Exception as exc:
+                LOG.warning(
+                    "Skipping unreadable metadata Reel %s from @%s: %s",
+                    getattr(post, "shortcode", "unknown"),
+                    profile.instagram,
+                    exc,
+                )
+        if not reels:
+            detail = f": {errors[-1]}" if errors else ""
+            raise RuntimeError(f"No readable metadata reels found for @{profile.instagram}{detail}")
+        return sorted(reels, key=lambda item: item.published_at, reverse=True)
+
+    @staticmethod
     def full_media_url(url: str) -> str:
         parts = urlsplit(url)
         query = [
@@ -212,7 +297,7 @@ class Monitor:
         ]
         return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
 
-    def discover(self, profile: Profile) -> list[Reel]:
+    def discover_browser(self, profile: Profile) -> list[Reel]:
         page = self.browser_context.new_page()
         try:
             page.goto(
@@ -241,8 +326,8 @@ class Monitor:
             try:
                 try:
                     detail.goto(url, wait_until="domcontentloaded", timeout=45_000)
-                    detail.wait_for_selector("time[datetime]", timeout=25_000)
-                    published = detail.locator("time[datetime]").first.get_attribute("datetime")
+                    detail.wait_for_timeout(3_000)
+                    published = self.browser_timestamp(detail)
                     resource_video_url, audio_url = self.embedded_media_urls(detail)
                     video_url = self.optional_attribute(
                         detail, "meta[property='og:video']", "content"
@@ -265,7 +350,7 @@ class Monitor:
                         caption_match = re.search(
                             r'(?:on Instagram|\d{4}):\s*["“](.*?)["”]\.?(?:\s|$)',
                             value,
-                            re.S,
+                            re.DOTALL,
                         )
                         if caption_match:
                             caption = caption_match.group(1).strip()
@@ -296,6 +381,21 @@ class Monitor:
         if not reels:
             raise RuntimeError(f"No readable reels found for @{profile.instagram}")
         return sorted(reels, key=lambda item: item.published_at, reverse=True)
+
+    def discover(self, profile: Profile) -> list[Reel]:
+        metadata_error: Exception | None = None
+        try:
+            return self.discover_instaloader(profile)
+        except Exception as exc:
+            metadata_error = exc
+            LOG.warning("Metadata discovery failed for @%s: %s", profile.instagram, exc)
+        try:
+            return self.discover_browser(profile)
+        except Exception as browser_error:
+            raise RuntimeError(
+                f"Metadata and browser discovery failed for @{profile.instagram}. "
+                f"Metadata: {metadata_error}; browser: {browser_error}"
+            ) from browser_error
 
     def download(self, url: str, destination: Path) -> None:
         url = self.full_media_url(url)
