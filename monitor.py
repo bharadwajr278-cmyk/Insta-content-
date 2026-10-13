@@ -565,8 +565,28 @@ class Monitor:
         }
         if self.api_token:
             headers["Authorization"] = f"Bearer {self.api_token}"
-        response = httpx.post(self.api_url, json=payload, headers=headers, timeout=90)
-        response.raise_for_status()
+        timeout = httpx.Timeout(90, connect=20)
+        for attempt in range(1, 4):
+            try:
+                response = httpx.post(
+                    self.api_url,
+                    json=payload,
+                    headers=headers,
+                    timeout=timeout,
+                )
+                response.raise_for_status()
+                return
+            except (httpx.ConnectError, httpx.ConnectTimeout):
+                if attempt == 3:
+                    raise
+                delay = attempt * 10
+                LOG.warning(
+                    "API connection failed for %s (attempt %d/3); retrying in %ds",
+                    reel.reel_id,
+                    attempt,
+                    delay,
+                )
+                time.sleep(delay)
 
     def process(self, reel: Reel, state: dict[str, Any]) -> None:
         with tempfile.TemporaryDirectory(prefix="reel-") as folder:
@@ -600,6 +620,12 @@ class Monitor:
         self.state_store.save(state)
         try:
             self.publish(reel, video_url, image_url, meta)
+        except (httpx.ConnectError, httpx.ConnectTimeout):
+            # No connection was established, so the request was not delivered.
+            # Remove the reservation so the next scheduled run can safely retry.
+            del state["reels"][reel.reel_id]
+            self.state_store.save(state)
+            raise
         except Exception as exc:
             state["reels"][reel.reel_id]["status"] = "PUBLISH_UNKNOWN"
             state["reels"][reel.reel_id]["error"] = str(exc)[:500]
