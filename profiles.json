@@ -551,6 +551,46 @@
       "city": "Lucknow",
       "cityCode": "lucknow",
       "enabled": true
+    },
+    {
+      "instagramUsername": "comingkeys",
+      "createdByUsername": "919717757675",
+      "state": "Gujarat",
+      "city": "Dholera",
+      "cityCode": "dholera",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "dholera_property_delar_offcial",
+      "createdByUsername": "919717757675",
+      "state": "Gujarat",
+      "city": "Dholera",
+      "cityCode": "dholera",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "new_india_infratech",
+      "createdByUsername": "919717757675",
+      "state": "Gujarat",
+      "city": "Dholera",
+      "cityCode": "dholera",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "mirrikhgroup",
+      "createdByUsername": "919717757675",
+      "state": "Gujarat",
+      "city": "Dholera",
+      "cityCode": "dholera",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "shivdhararealty",
+      "createdByUsername": "919717757675",
+      "state": "Gujarat",
+      "city": "Dholera",
+      "cityCode": "dholera",
+      "enabled": true
     }
   ]
 }
