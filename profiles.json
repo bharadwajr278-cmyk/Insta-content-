@@ -671,6 +671,46 @@
       "city": "Dholera",
       "cityCode": "dholera",
       "enabled": true
+    },
+    {
+      "instagramUsername": "propertyroundofficial",
+      "createdByUsername": "919818728787",
+      "state": "Himachal Pradesh",
+      "city": "Shimla",
+      "cityCode": "shimla",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "hillhomes.hp",
+      "createdByUsername": "919818728787",
+      "state": "Himachal Pradesh",
+      "city": "Shimla",
+      "cityCode": "shimla",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "estate_drive",
+      "createdByUsername": "919818728787",
+      "state": "Himachal Pradesh",
+      "city": "Shimla",
+      "cityCode": "shimla",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "clifftonvalley",
+      "createdByUsername": "919818728787",
+      "state": "Himachal Pradesh",
+      "city": "Shimla",
+      "cityCode": "shimla",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "eastlin_properties",
+      "createdByUsername": "919818728787",
+      "state": "Himachal Pradesh",
+      "city": "Shimla",
+      "cityCode": "shimla",
+      "enabled": true
     }
   ]
 }
