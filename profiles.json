@@ -711,6 +711,30 @@
       "city": "Shimla",
       "cityCode": "shimla",
       "enabled": true
+    },
+    {
+      "instagramUsername": "udupi_properties",
+      "createdByUsername": "919818205777",
+      "state": "Karnataka",
+      "city": "Udupi",
+      "cityCode": "udupi",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "udupi.estates",
+      "createdByUsername": "919818205777",
+      "state": "Karnataka",
+      "city": "Udupi",
+      "cityCode": "udupi",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "buy_2_sale",
+      "createdByUsername": "919818205777",
+      "state": "Karnataka",
+      "city": "Udupi",
+      "cityCode": "udupi",
+      "enabled": true
     }
   ]
 }
