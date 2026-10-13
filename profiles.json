@@ -487,6 +487,70 @@
       "city": "Meerut",
       "cityCode": "meerut",
       "enabled": true
+    },
+    {
+      "instagramUsername": "simplyshilpi",
+      "createdByUsername": "918800658006",
+      "state": "Uttar Pradesh",
+      "city": "Lucknow",
+      "cityCode": "lucknow",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "magical_estate",
+      "createdByUsername": "918800658006",
+      "state": "Uttar Pradesh",
+      "city": "Lucknow",
+      "cityCode": "lucknow",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "aapkiproperty",
+      "createdByUsername": "918800658006",
+      "state": "Uttar Pradesh",
+      "city": "Lucknow",
+      "cityCode": "lucknow",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "lucknowproperty05",
+      "createdByUsername": "918800658006",
+      "state": "Uttar Pradesh",
+      "city": "Lucknow",
+      "cityCode": "lucknow",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "team_aman_chawla",
+      "createdByUsername": "918800658006",
+      "state": "Uttar Pradesh",
+      "city": "Lucknow",
+      "cityCode": "lucknow",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "aman_properties_",
+      "createdByUsername": "918800658006",
+      "state": "Uttar Pradesh",
+      "city": "Lucknow",
+      "cityCode": "lucknow",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "propertyvisits",
+      "createdByUsername": "918800658006",
+      "state": "Uttar Pradesh",
+      "city": "Lucknow",
+      "cityCode": "lucknow",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "dev_lko_vlog",
+      "createdByUsername": "918800658006",
+      "state": "Uttar Pradesh",
+      "city": "Lucknow",
+      "cityCode": "lucknow",
+      "enabled": true
     }
   ]
 }
