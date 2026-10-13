@@ -183,9 +183,7 @@ class Monitor:
                 if match:
                     video_url = match.group(1).replace(r"\u0026", "&").replace(r"\/", "/")
                     break
-        resources = page.evaluate(
-            "() => performance.getEntriesByType('resource').map(e => e.name)"
-        )
+        resources = page.evaluate("() => performance.getEntriesByType('resource').map(e => e.name)")
         audio_url = None
         for url in resources:
             if not isinstance(url, str) or not any(
@@ -199,11 +197,29 @@ class Monitor:
                     descriptor = base64.b64decode(encoded + "===").decode(errors="ignore").lower()
                 except Exception:
                     pass
+            lower_url = url.lower()
+            is_image = any(
+                marker in descriptor for marker in ("cover", "image", "thumbnail")
+            ) or any(
+                lower_url.split("?", 1)[0].endswith(ext)
+                for ext in (".jpg", ".jpeg", ".png", ".webp")
+            )
             if "audio" in descriptor and audio_url is None:
                 audio_url = url
-            elif ("dash" in descriptor or "video" in descriptor) and video_url is None:
+            elif (
+                not is_image
+                and ("dash" in descriptor or "video" in descriptor or ".mp4" in lower_url)
+                and video_url is None
+            ):
                 video_url = url
         return video_url, audio_url
+
+    @staticmethod
+    def looks_like_video_url(url: str | None) -> bool:
+        if not url or not url.startswith("http"):
+            return False
+        path = urlsplit(url).path.casefold()
+        return not path.endswith((".jpg", ".jpeg", ".png", ".webp", ".gif"))
 
     @staticmethod
     def browser_timestamp(page: Any) -> str | None:
@@ -295,7 +311,9 @@ class Monitor:
             for name, value in parse_qsl(parts.query, keep_blank_values=True)
             if name.casefold() not in {"bytestart", "byteend"}
         ]
-        return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
+        return urlunsplit(
+            (parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment)
+        )
 
     def discover_browser(self, profile: Profile) -> list[Reel]:
         page = self.browser_context.new_page()
@@ -327,21 +345,26 @@ class Monitor:
                 try:
                     detail.goto(url, wait_until="domcontentloaded", timeout=45_000)
                     detail.wait_for_timeout(3_000)
+                    videos = detail.locator("video")
+                    if videos.count():
+                        videos.first.evaluate(
+                            "v => { v.muted = true; return v.play().catch(() => null); }"
+                        )
+                        detail.wait_for_timeout(2_000)
                     published = self.browser_timestamp(detail)
                     resource_video_url, audio_url = self.embedded_media_urls(detail)
-                    video_url = self.optional_attribute(
-                        detail, "meta[property='og:video']", "content"
-                    ) or resource_video_url
+                    video_url = (
+                        self.optional_attribute(detail, "meta[property='og:video']", "content")
+                        or resource_video_url
+                    )
                     thumbnail_url = self.optional_attribute(
                         detail, "meta[property='og:image']", "content"
                     )
                     description = self.optional_attribute(
                         detail, "meta[property='og:description']", "content"
                     )
-                    title = self.optional_attribute(
-                        detail, "meta[property='og:title']", "content"
-                    )
-                    if not published or not video_url:
+                    title = self.optional_attribute(detail, "meta[property='og:title']", "content")
+                    if not published or not self.looks_like_video_url(video_url):
                         raise RuntimeError("timestamp or downloadable video URL is unavailable")
                     caption = ""
                     for value in (title, description):
@@ -405,9 +428,14 @@ class Monitor:
             "Range": "bytes=0-",
         }
         cookies = self.loader.context._session.cookies.get_dict()
-        with httpx.Client(timeout=180, follow_redirects=True, headers=headers, cookies=cookies) as c:
+        with httpx.Client(
+            timeout=180, follow_redirects=True, headers=headers, cookies=cookies
+        ) as c:
             with c.stream("GET", url) as response:
                 response.raise_for_status()
+                content_type = response.headers.get("content-type", "").casefold()
+                if destination.suffix.casefold() == ".mp4" and content_type.startswith("image/"):
+                    raise RuntimeError(f"Instagram returned {content_type} instead of video data")
                 with destination.open("wb") as handle:
                     for chunk in response.iter_bytes():
                         handle.write(chunk)
@@ -422,9 +450,26 @@ class Monitor:
             inputs.extend(["-i", str(audio_source)])
         run_command(
             [
-                "ffmpeg", "-y", *inputs, "-map", "0:v:0", *audio_map,
-                "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-pix_fmt",
-                "yuv420p", "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart",
+                "ffmpeg",
+                "-y",
+                *inputs,
+                "-map",
+                "0:v:0",
+                *audio_map,
+                "-c:v",
+                "libx264",
+                "-preset",
+                "veryfast",
+                "-crf",
+                "23",
+                "-pix_fmt",
+                "yuv420p",
+                "-c:a",
+                "aac",
+                "-b:a",
+                "128k",
+                "-movflags",
+                "+faststart",
                 str(destination),
             ]
         )
@@ -433,8 +478,19 @@ class Monitor:
     def thumbnail(video: Path, destination: Path) -> None:
         run_command(
             [
-                "ffmpeg", "-y", "-ss", "0.5", "-i", str(video), "-frames:v", "1",
-                "-vf", "scale='min(1080,iw)':-2", "-q:v", "2", str(destination),
+                "ffmpeg",
+                "-y",
+                "-ss",
+                "0.5",
+                "-i",
+                str(video),
+                "-frames:v",
+                "1",
+                "-vf",
+                "scale='min(1080,iw)':-2",
+                "-q:v",
+                "2",
+                str(destination),
             ]
         )
 
@@ -442,8 +498,14 @@ class Monitor:
     def metadata(video: Path) -> dict[str, Any]:
         result = subprocess.run(
             [
-                "ffprobe", "-v", "error", "-show_entries",
-                "format=duration:stream=codec_type,width,height", "-of", "json", str(video),
+                "ffprobe",
+                "-v",
+                "error",
+                "-show_entries",
+                "format=duration:stream=codec_type,width,height",
+                "-of",
+                "json",
+                str(video),
             ],
             capture_output=True,
             text=True,
@@ -466,8 +528,13 @@ class Monitor:
 
     def upload(self, path: Path, key: str, content_type: str) -> str:
         self.s3.upload_file(
-            str(path), self.bucket, key,
-            ExtraArgs={"ContentType": content_type, "CacheControl": "public, max-age=31536000, immutable"},
+            str(path),
+            self.bucket,
+            key,
+            ExtraArgs={
+                "ContentType": content_type,
+                "CacheControl": "public, max-age=31536000, immutable",
+            },
         )
         return f"{self.public_base}/{quote(key, safe='/')}"
 
@@ -478,14 +545,24 @@ class Monitor:
         payload = {
             "createdByUsername": reel.profile.app_user,
             "text": text,
-            "clipMedia": {"url": video_url, "mediaType": "VIDEO", "thumbnailUrl": thumbnail_url, **meta},
-            "taggedUsernames": list(dict.fromkeys(re.findall(r"(?<![\w@])@([A-Za-z0-9._]+)", cleaned))),
+            "clipMedia": {
+                "url": video_url,
+                "mediaType": "VIDEO",
+                "thumbnailUrl": thumbnail_url,
+                **meta,
+            },
+            "taggedUsernames": list(
+                dict.fromkeys(re.findall(r"(?<![\w@])@([A-Za-z0-9._]+)", cleaned))
+            ),
             "taggedHashtags": list(dict.fromkeys(re.findall(r"(?<!\w)#([\w.]+)", cleaned))),
             "isLargeMultimedia": False,
             "makeLive": True,
             "cityCode": reel.profile.city_code,
         }
-        headers = {"Content-Type": "application/json", "Idempotency-Key": f"instagram:{reel.reel_id}"}
+        headers = {
+            "Content-Type": "application/json",
+            "Idempotency-Key": f"instagram:{reel.reel_id}",
+        }
         if self.api_token:
             headers["Authorization"] = f"Bearer {self.api_token}"
         response = httpx.post(self.api_url, json=payload, headers=headers, timeout=90)
@@ -505,6 +582,10 @@ class Monitor:
                 audio_source = audio
             self.normalize(source, video, audio_source)
             self.thumbnail(video, image)
+            if not image.exists() or image.stat().st_size < 1_000:
+                if not reel.thumbnail_url:
+                    raise RuntimeError("Thumbnail generation produced no image")
+                self.download(reel.thumbnail_url, image)
             meta = self.metadata(video)
             base = f"instagram/{safe(reel.profile.instagram)}/{safe(reel.reel_id)}"
             video_url = self.upload(video, f"{base}.mp4", "video/mp4")
@@ -597,7 +678,9 @@ class Monitor:
                 profile.instagram.casefold() for profile, _ in discovered
             )
             self.state_store.save(state)
-            LOG.info("Initialized baseline with %d Reel IDs; no old reels published", len(state["reels"]))
+            LOG.info(
+                "Initialized baseline with %d Reel IDs; no old reels published", len(state["reels"])
+            )
             return
 
         known = set(state.get("reels", {}))
@@ -650,11 +733,14 @@ class Monitor:
                 published += 1
         if priority_names:
             successful = {profile.instagram.casefold() for profile, _ in discovered}
-            state["priorityProfiles"] = [
-                name for name in priority_names if name not in successful
-            ]
+            state["priorityProfiles"] = [name for name in priority_names if name not in successful]
             self.state_store.save(state)
-        LOG.info("Run finished; published=%d scanned=%d total_profiles=%d", published, len(selected), len(profiles))
+        LOG.info(
+            "Run finished; published=%d scanned=%d total_profiles=%d",
+            published,
+            len(selected),
+            len(profiles),
+        )
 
     def close(self) -> None:
         self.browser_context.close()
