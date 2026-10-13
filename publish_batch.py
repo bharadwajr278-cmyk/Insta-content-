@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import os
 import time
+from dataclasses import replace
 
 from monitor import Monitor
 
@@ -18,6 +19,8 @@ def main() -> None:
         if item.strip()
     ]
     limit = int(os.getenv("BATCH_REELS_PER_PROFILE", "6"))
+    app_user_override = os.getenv("BATCH_APP_USER", "").strip()
+    city_code_override = os.getenv("BATCH_CITY_CODE", "").strip()
     monitor = Monitor()
     try:
         configured = {
@@ -34,6 +37,12 @@ def main() -> None:
         queues = []
         for name in requested:
             profile = configured[name]
+            if app_user_override or city_code_override:
+                profile = replace(
+                    profile,
+                    app_user=app_user_override or profile.app_user,
+                    city_code=city_code_override or profile.city_code,
+                )
             reels = monitor.discover(profile)
             unique = [reel for reel in reels if reel.reel_id not in known][:limit]
             queues.append(unique)

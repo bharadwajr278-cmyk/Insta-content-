@@ -407,6 +407,38 @@
       "city": "Bangalore",
       "cityCode": "bengaluru",
       "enabled": true
+    },
+    {
+      "instagramUsername": "allaboutrealestate.ai",
+      "createdByUsername": "918448664666",
+      "state": "Karnataka",
+      "city": "Bengaluru",
+      "cityCode": "bengaluru",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "yellowzonerealtors",
+      "createdByUsername": "918448664666",
+      "state": "Karnataka",
+      "city": "Bengaluru",
+      "cityCode": "bengaluru",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "address_advisors",
+      "createdByUsername": "918448664666",
+      "state": "Karnataka",
+      "city": "Bengaluru",
+      "cityCode": "bengaluru",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "myhomelocator",
+      "createdByUsername": "918448664666",
+      "state": "Karnataka",
+      "city": "Bengaluru",
+      "cityCode": "bengaluru",
+      "enabled": true
     }
   ]
 }
