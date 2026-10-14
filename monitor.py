@@ -23,6 +23,31 @@ from playwright.sync_api import sync_playwright
 
 LOG = logging.getLogger("reel-monitor")
 COURTESY = "Courtesy"
+HTTP_CLIENT = httpx.Client(
+    timeout=httpx.Timeout(60.0, connect=30.0),
+    transport=httpx.HTTPTransport(retries=3),
+    follow_redirects=True,
+)
+
+
+def safe_request(method: str, url: str, **kwargs: Any) -> httpx.Response | None:
+    """Make an HTTP request without allowing transient connection failures to stop a run."""
+    retry_delays = (5, 10, 15)
+    for attempt in range(4):
+        try:
+            return HTTP_CLIENT.request(method, url, **kwargs)
+        except (httpx.ConnectTimeout, httpx.ReadTimeout, httpx.ConnectError) as exc:
+            LOG.warning(
+                "HTTP %s %s failed (attempt %d/4): %s",
+                method.upper(),
+                url,
+                attempt + 1,
+                exc,
+            )
+            if attempt < len(retry_delays):
+                time.sleep(retry_delays[attempt])
+    LOG.error("HTTP %s %s failed after 3 retries; skipping", method.upper(), url)
+    return None
 
 
 def required(name: str) -> str:
@@ -420,7 +445,7 @@ class Monitor:
                 f"Metadata: {metadata_error}; browser: {browser_error}"
             ) from browser_error
 
-    def download(self, url: str, destination: Path) -> None:
+    def download(self, url: str, destination: Path) -> bool:
         url = self.full_media_url(url)
         headers = {
             "User-Agent": self.loader.context.user_agent,
@@ -428,19 +453,18 @@ class Monitor:
             "Range": "bytes=0-",
         }
         cookies = self.loader.context._session.cookies.get_dict()
-        with httpx.Client(
-            timeout=180, follow_redirects=True, headers=headers, cookies=cookies
-        ) as c:
-            with c.stream("GET", url) as response:
-                response.raise_for_status()
-                content_type = response.headers.get("content-type", "").casefold()
-                if destination.suffix.casefold() == ".mp4" and content_type.startswith("image/"):
-                    raise RuntimeError(f"Instagram returned {content_type} instead of video data")
-                with destination.open("wb") as handle:
-                    for chunk in response.iter_bytes():
-                        handle.write(chunk)
+        response = safe_request("GET", url, headers=headers, cookies=cookies)
+        if response is None:
+            LOG.error("Media download failed for %s; skipping reel", url)
+            return False
+        response.raise_for_status()
+        content_type = response.headers.get("content-type", "").casefold()
+        if destination.suffix.casefold() == ".mp4" and content_type.startswith("image/"):
+            raise RuntimeError(f"Instagram returned {content_type} instead of video data")
+        destination.write_bytes(response.content)
         if destination.stat().st_size < 10_000:
             raise RuntimeError("Instagram media download is unexpectedly small")
+        return True
 
     @staticmethod
     def normalize(source: Path, destination: Path, audio_source: Path | None = None) -> None:
@@ -542,7 +566,7 @@ class Monitor:
         )
         return f"{self.public_base}/{quote(key, safe='/')}"
 
-    def publish(self, reel: Reel, video_url: str, thumbnail_url: str, meta: dict[str, Any]) -> None:
+    def publish(self, reel: Reel, video_url: str, thumbnail_url: str, meta: dict[str, Any]) -> bool:
         cleaned = " ".join(reel.caption.split())
         courtesy = f"{COURTESY} @{reel.profile.instagram}"
         text = f"{courtesy}\n\n{cleaned}" if cleaned else courtesy
@@ -573,47 +597,34 @@ class Monitor:
         }
         if self.api_token:
             headers["Authorization"] = f"Bearer {self.api_token}"
-        timeout = httpx.Timeout(90, connect=20)
-        for attempt in range(1, 4):
-            try:
-                response = httpx.post(
-                    self.api_url,
-                    json=payload,
-                    headers=headers,
-                    timeout=timeout,
-                )
-                response.raise_for_status()
-                return
-            except httpx.TransportError:
-                if attempt == 3:
-                    raise
-                delay = attempt * 10
-                LOG.warning(
-                    "API connection failed for %s (attempt %d/3); retrying in %ds",
-                    reel.reel_id,
-                    attempt,
-                    delay,
-                )
-                time.sleep(delay)
+        response = safe_request("POST", self.api_url, json=payload, headers=headers)
+        if response is None:
+            LOG.error("API publish failed for Reel %s; skipping", reel.reel_id)
+            return False
+        response.raise_for_status()
+        return True
 
-    def process(self, reel: Reel, state: dict[str, Any]) -> None:
+    def process(self, reel: Reel, state: dict[str, Any]) -> bool:
         with tempfile.TemporaryDirectory(prefix="reel-") as folder:
             work = Path(folder)
             source = work / "source.mp4"
             audio = work / "audio.mp4"
             video = work / "video.mp4"
             image = work / "thumbnail.jpg"
-            self.download(reel.video_url, source)
+            if not self.download(reel.video_url, source):
+                return False
             audio_source = None
             if reel.audio_url:
-                self.download(reel.audio_url, audio)
+                if not self.download(reel.audio_url, audio):
+                    return False
                 audio_source = audio
             self.normalize(source, video, audio_source)
             self.thumbnail(video, image)
             if not image.exists() or image.stat().st_size < 1_000:
                 if not reel.thumbnail_url:
                     raise RuntimeError("Thumbnail generation produced no image")
-                self.download(reel.thumbnail_url, image)
+                if not self.download(reel.thumbnail_url, image):
+                    return False
             meta = self.metadata(video)
             base = f"instagram/{safe(reel.profile.instagram)}/{safe(reel.reel_id)}"
             video_url = self.upload(video, f"{base}.mp4", "video/mp4")
@@ -627,13 +638,10 @@ class Monitor:
         }
         self.state_store.save(state)
         try:
-            self.publish(reel, video_url, image_url, meta)
-        except (httpx.ConnectError, httpx.ConnectTimeout):
-            # No connection was established, so the request was not delivered.
-            # Remove the reservation so the next scheduled run can safely retry.
-            del state["reels"][reel.reel_id]
-            self.state_store.save(state)
-            raise
+            if not self.publish(reel, video_url, image_url, meta):
+                del state["reels"][reel.reel_id]
+                self.state_store.save(state)
+                return False
         except Exception as exc:
             state["reels"][reel.reel_id]["status"] = "PUBLISH_UNKNOWN"
             state["reels"][reel.reel_id]["error"] = str(exc)[:500]
@@ -642,6 +650,7 @@ class Monitor:
         state["reels"][reel.reel_id]["status"] = "PUBLISHED"
         self.state_store.save(state)
         LOG.info("Published %s from @%s", reel.reel_id, reel.profile.instagram)
+        return True
 
     def migrate_state(self, state: dict[str, Any]) -> bool:
         """Recover post-deployment reels incorrectly absorbed by the staggered first baseline."""
@@ -763,8 +772,18 @@ class Monitor:
             for queue in queues:
                 if index >= len(queue):
                     continue
-                self.process(queue[index], state)
-                published += 1
+                reel = queue[index]
+                try:
+                    if self.process(reel, state):
+                        published += 1
+                except Exception as exc:
+                    LOG.error(
+                        "Processing failed for Reel %s from @%s; continuing: %s",
+                        reel.reel_id,
+                        reel.profile.instagram,
+                        exc,
+                        exc_info=True,
+                    )
         if priority_names:
             successful = {profile.instagram.casefold() for profile, _ in discovered}
             state["priorityProfiles"] = [name for name in priority_names if name not in successful]
@@ -789,3 +808,4 @@ if __name__ == "__main__":
         monitor.execute()
     finally:
         monitor.close()
+        HTTP_CLIENT.close()
