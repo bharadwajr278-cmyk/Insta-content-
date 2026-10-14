@@ -124,6 +124,7 @@ class Monitor:
         self.public_base = required("PUBLIC_BASE_URL").rstrip("/")
         self.scan_limit = int(os.getenv("SCAN_LIMIT", "5"))
         self.max_new = int(os.getenv("MAX_NEW_REELS_PER_PROFILE", "2"))
+        self.max_publish_per_run = int(os.getenv("MAX_PUBLISH_PER_RUN", "0"))
         self.profile_batch_size = int(os.getenv("PROFILE_BATCH_SIZE", "5"))
         self.session_username = required("INSTAGRAM_SESSION_USERNAME")
         self.session_file = Path(required("INSTAGRAM_SESSION_FILE"))
@@ -676,6 +677,14 @@ class Monitor:
 
     def execute(self) -> None:
         profiles = self.load_profiles()
+        only_city_code = os.getenv("ONLY_CITY_CODE", "").strip().casefold()
+        if only_city_code:
+            profiles = [
+                profile for profile in profiles if profile.city_code.casefold() == only_city_code
+            ]
+            if not profiles:
+                raise RuntimeError(f"No enabled profiles found for city code: {only_city_code}")
+            LOG.info("Manual city filter active: %s (%d profiles)", only_city_code, len(profiles))
         state = self.state_store.load()
         if state is not None and self.migrate_state(state):
             self.state_store.save(state)
@@ -770,6 +779,8 @@ class Monitor:
         published = 0
         for index in range(max((len(queue) for queue in queues), default=0)):
             for queue in queues:
+                if self.max_publish_per_run and published >= self.max_publish_per_run:
+                    break
                 if index >= len(queue):
                     continue
                 reel = queue[index]
@@ -784,6 +795,8 @@ class Monitor:
                         exc,
                         exc_info=True,
                     )
+            if self.max_publish_per_run and published >= self.max_publish_per_run:
+                break
         if priority_names:
             successful = {profile.instagram.casefold() for profile, _ in discovered}
             state["priorityProfiles"] = [name for name in priority_names if name not in successful]

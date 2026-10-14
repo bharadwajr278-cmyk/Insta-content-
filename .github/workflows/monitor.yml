@@ -4,6 +4,16 @@ on:
   schedule:
     - cron: "7,22,37,52 * * * *"
   workflow_dispatch:
+    inputs:
+      city_code:
+        description: Optional city code to scan exclusively
+        required: false
+        type: string
+      max_publish:
+        description: Maximum reels to publish in this manual run (0 means unlimited)
+        required: false
+        default: "0"
+        type: string
 
 concurrency:
   group: instagram-reel-monitor
@@ -31,6 +41,8 @@ jobs:
       SCAN_LIMIT: "5"
       MAX_NEW_REELS_PER_PROFILE: "2"
       PROFILE_BATCH_SIZE: "5"
+      ONLY_CITY_CODE: ${{ inputs.city_code || '' }}
+      MAX_PUBLISH_PER_RUN: ${{ inputs.max_publish || '0' }}
     steps:
       - uses: actions/checkout@v4
 
