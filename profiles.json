@@ -911,6 +911,30 @@
       "city": "Amritsar",
       "cityCode": "amritsar",
       "enabled": true
+    },
+    {
+      "instagramUsername": "covai_property_",
+      "createdByUsername": "919560209560",
+      "state": "Tamil Nadu",
+      "city": "Coimbatore",
+      "cityCode": "coimbatore",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "covai_vl_real_estate",
+      "createdByUsername": "919560209560",
+      "state": "Tamil Nadu",
+      "city": "Coimbatore",
+      "cityCode": "coimbatore",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "premhomescbe",
+      "createdByUsername": "919560209560",
+      "state": "Tamil Nadu",
+      "city": "Coimbatore",
+      "cityCode": "coimbatore",
+      "enabled": true
     }
   ]
 }
