@@ -831,6 +831,86 @@
       "city": "Surat",
       "cityCode": "surat",
       "enabled": true
+    },
+    {
+      "instagramUsername": "propertygandhinagar",
+      "createdByUsername": "919560779650",
+      "state": "Gujarat",
+      "city": "Gandhinagar",
+      "cityCode": "gandhinagar",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "gujarat.realestate.guide",
+      "createdByUsername": "919560779650",
+      "state": "Gujarat",
+      "city": "Gandhinagar",
+      "cityCode": "gandhinagar",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "nester_space",
+      "createdByUsername": "919560779650",
+      "state": "Gujarat",
+      "city": "Gandhinagar",
+      "cityCode": "gandhinagar",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "gajanan__properties",
+      "createdByUsername": "919560779650",
+      "state": "Gujarat",
+      "city": "Gandhinagar",
+      "cityCode": "gandhinagar",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "theprivilon",
+      "createdByUsername": "919560779650",
+      "state": "Gujarat",
+      "city": "Gandhinagar",
+      "cityCode": "gandhinagar",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "unlocksuperproperty",
+      "createdByUsername": "918448748448",
+      "state": "Punjab",
+      "city": "Amritsar",
+      "cityCode": "amritsar",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "anuradha_real_estate_amritsar",
+      "createdByUsername": "918448748448",
+      "state": "Punjab",
+      "city": "Amritsar",
+      "cityCode": "amritsar",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "star_real_estate7566",
+      "createdByUsername": "918448748448",
+      "state": "Punjab",
+      "city": "Amritsar",
+      "cityCode": "amritsar",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "trusted_propertypartner",
+      "createdByUsername": "918448748448",
+      "state": "Punjab",
+      "city": "Amritsar",
+      "cityCode": "amritsar",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "a1propertyamritsar",
+      "createdByUsername": "918448748448",
+      "state": "Punjab",
+      "city": "Amritsar",
+      "cityCode": "amritsar",
+      "enabled": true
     }
   ]
 }
