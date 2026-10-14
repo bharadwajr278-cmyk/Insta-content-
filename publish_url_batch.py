@@ -53,6 +53,21 @@ def main() -> None:
     if state is None:
         raise RuntimeError("Monitor state is missing")
     published = failed = 0
+    force_republish = os.getenv("FORCE_REPUBLISH", "").strip().casefold() in {
+        "1",
+        "true",
+        "yes",
+    }
+    skipped_ids = {
+        item.strip()
+        for item in os.getenv("SKIP_REEL_IDS", "").split(",")
+        if item.strip()
+    }
+    only_ids = {
+        item.strip()
+        for item in os.getenv("ONLY_REEL_IDS", "").split(",")
+        if item.strip()
+    }
     rows = config["profiles"]
     for position in range(config.get("reelsPerProfile", 5)):
         for row in rows:
@@ -61,7 +76,12 @@ def main() -> None:
                 continue
             url = links[position]
             reel_id = url.rstrip("/").split("/")[-1]
-            if reel_id in state.get("reels", {}):
+            if only_ids and reel_id not in only_ids:
+                continue
+            if reel_id in skipped_ids:
+                LOG.info("Skipping explicitly excluded Reel %s", reel_id)
+                continue
+            if not force_republish and reel_id in state.get("reels", {}):
                 LOG.info("Skipping known Reel %s", reel_id)
                 continue
             try:

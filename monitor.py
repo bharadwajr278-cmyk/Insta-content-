@@ -457,7 +457,17 @@ class Monitor:
                 "0:v:0",
                 *audio_map,
                 "-c:v",
-                "copy",
+                "h264_qsv",
+                "-preset",
+                "medium",
+                "-global_quality",
+                "18",
+                "-pix_fmt",
+                "nv12",
+                "-profile:v",
+                "high",
+                "-level:v",
+                "4.1",
                 "-c:a",
                 "aac",
                 "-b:a",
@@ -553,9 +563,13 @@ class Monitor:
             "makeLive": True,
             "cityCode": reel.profile.city_code,
         }
+        idempotency_suffix = os.getenv("IDEMPOTENCY_SUFFIX", "").strip()
+        idempotency_key = f"instagram:{reel.reel_id}"
+        if idempotency_suffix:
+            idempotency_key = f"{idempotency_key}:{idempotency_suffix}"
         headers = {
             "Content-Type": "application/json",
-            "Idempotency-Key": f"instagram:{reel.reel_id}",
+            "Idempotency-Key": idempotency_key,
         }
         if self.api_token:
             headers["Authorization"] = f"Bearer {self.api_token}"
@@ -570,7 +584,7 @@ class Monitor:
                 )
                 response.raise_for_status()
                 return
-            except (httpx.ConnectError, httpx.ConnectTimeout):
+            except httpx.TransportError:
                 if attempt == 3:
                     raise
                 delay = attempt * 10
