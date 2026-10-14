@@ -14,6 +14,11 @@ on:
         required: false
         default: "0"
         type: string
+      publish_baseline:
+        description: Allow a manual run to publish the latest baseline reel
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: instagram-reel-monitor
@@ -43,6 +48,7 @@ jobs:
       PROFILE_BATCH_SIZE: "5"
       ONLY_CITY_CODE: ${{ inputs.city_code || '' }}
       MAX_PUBLISH_PER_RUN: ${{ inputs.max_publish || '0' }}
+      PUBLISH_BASELINE_REELS: ${{ inputs.publish_baseline || 'false' }}
     steps:
       - uses: actions/checkout@v4
 

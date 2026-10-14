@@ -125,6 +125,11 @@ class Monitor:
         self.scan_limit = int(os.getenv("SCAN_LIMIT", "5"))
         self.max_new = int(os.getenv("MAX_NEW_REELS_PER_PROFILE", "2"))
         self.max_publish_per_run = int(os.getenv("MAX_PUBLISH_PER_RUN", "0"))
+        self.publish_baseline_reels = os.getenv("PUBLISH_BASELINE_REELS", "").casefold() in {
+            "1",
+            "true",
+            "yes",
+        }
         self.profile_batch_size = int(os.getenv("PROFILE_BATCH_SIZE", "5"))
         self.session_username = required("INSTAGRAM_SESSION_USERNAME")
         self.session_file = Path(required("INSTAGRAM_SESSION_FILE"))
@@ -764,7 +769,10 @@ class Monitor:
                 continue
             pending = []
             for reel in reels:
-                if reel.reel_id in known:
+                record = state.get("reels", {}).get(reel.reel_id)
+                if reel.reel_id in known and not (
+                    self.publish_baseline_reels and record and record.get("status") == "BASELINE"
+                ):
                     break
                 pending.append(reel)
             if pending:
