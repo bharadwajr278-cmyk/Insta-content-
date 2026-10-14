@@ -791,6 +791,46 @@
       "city": "Mohali",
       "cityCode": "mohali",
       "enabled": true
+    },
+    {
+      "instagramUsername": "propertieswithsmittt",
+      "createdByUsername": "919818246999",
+      "state": "Gujarat",
+      "city": "Surat",
+      "cityCode": "surat",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "urban_property_",
+      "createdByUsername": "919818246999",
+      "state": "Gujarat",
+      "city": "Surat",
+      "cityCode": "surat",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "aditya_property_management",
+      "createdByUsername": "919818246999",
+      "state": "Gujarat",
+      "city": "Surat",
+      "cityCode": "surat",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "vansh__property",
+      "createdByUsername": "919818246999",
+      "state": "Gujarat",
+      "city": "Surat",
+      "cityCode": "surat",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "varachha_property",
+      "createdByUsername": "919818246999",
+      "state": "Gujarat",
+      "city": "Surat",
+      "cityCode": "surat",
+      "enabled": true
     }
   ]
 }

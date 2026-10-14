@@ -19,6 +19,7 @@ def main() -> None:
         if item.strip()
     ]
     limit = int(os.getenv("BATCH_REELS_PER_PROFILE", "6"))
+    target_total = int(os.getenv("BATCH_TARGET_TOTAL_PER_PROFILE", "0"))
     app_user_override = os.getenv("BATCH_APP_USER", "").strip()
     city_code_override = os.getenv("BATCH_CITY_CODE", "").strip()
     monitor = Monitor()
@@ -44,7 +45,16 @@ def main() -> None:
                     city_code=city_code_override or profile.city_code,
                 )
             reels = monitor.discover(profile)
-            unique = [reel for reel in reels if reel.reel_id not in known][:limit]
+            profile_limit = limit
+            if target_total:
+                already_published = sum(
+                    1
+                    for record in state.get("reels", {}).values()
+                    if str(record.get("profile", "")).casefold() == name
+                    and record.get("status") == "PUBLISHED"
+                )
+                profile_limit = max(0, target_total - already_published)
+            unique = [reel for reel in reels if reel.reel_id not in known][:profile_limit]
             queues.append(unique)
             logging.info("@%s: queued %d unique reels", profile.instagram, len(unique))
             time.sleep(2)
