@@ -30,9 +30,21 @@ HTTP_CLIENT = httpx.Client(
 )
 
 
+def redacted_url(url: str) -> str:
+    """Return a log-safe URL without query parameters or fragments."""
+    try:
+        parts = urlsplit(url)
+        if not parts.scheme or not parts.netloc:
+            return "<redacted-url>"
+        return urlunsplit((parts.scheme, parts.netloc, parts.path, "", ""))
+    except (TypeError, ValueError):
+        return "<redacted-url>"
+
+
 def safe_request(method: str, url: str, **kwargs: Any) -> httpx.Response | None:
     """Make an HTTP request without allowing transient connection failures to stop a run."""
     retry_delays = (5, 10, 15)
+    log_url = redacted_url(url)
     for attempt in range(4):
         try:
             return HTTP_CLIENT.request(method, url, **kwargs)
@@ -40,13 +52,13 @@ def safe_request(method: str, url: str, **kwargs: Any) -> httpx.Response | None:
             LOG.warning(
                 "HTTP %s %s failed (attempt %d/4): %s",
                 method.upper(),
-                url,
+                log_url,
                 attempt + 1,
                 exc,
             )
             if attempt < len(retry_delays):
                 time.sleep(retry_delays[attempt])
-    LOG.error("HTTP %s %s failed after 3 retries; skipping", method.upper(), url)
+    LOG.error("HTTP %s %s failed after 3 retries; skipping", method.upper(), log_url)
     return None
 
 
@@ -461,7 +473,7 @@ class Monitor:
         cookies = self.loader.context._session.cookies.get_dict()
         response = safe_request("GET", url, headers=headers, cookies=cookies)
         if response is None:
-            LOG.error("Media download failed for %s; skipping reel", url)
+            LOG.error("Media download failed for %s; skipping reel", redacted_url(url))
             return False
         response.raise_for_status()
         content_type = response.headers.get("content-type", "").casefold()

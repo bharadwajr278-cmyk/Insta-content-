@@ -31,6 +31,18 @@ The worker stores its durable deduplication state at
 `s3://<bucket>/automation/instagram-reel-monitor/state.json`. On the first successful run it
 records a baseline without publishing old reels. Later runs publish only IDs not in that state.
 
+### Privacy and compliance
+
+- The automation runs on an ephemeral GitHub-hosted runner. The laptop may be switched off, but
+  GitHub and destination services can still see the runner's network address.
+- It does not use a VPN, proxy rotation, browser fingerprint spoofing, or anti-detection behavior.
+- Credentials remain in encrypted GitHub Actions secrets and the restored Instagram session file
+  is restricted to the workflow process on the temporary runner.
+- Signed media URL query strings and fragments are removed from logs so temporary access tokens
+  are not exposed in workflow output.
+- Browser contexts and downloaded media live only for the duration of a run; temporary working
+  directories are deleted after each reel.
+
 ## Safety behavior
 
 - One scheduled run at a time through workflow concurrency.
@@ -38,6 +50,8 @@ records a baseline without publishing old reels. Later runs publish only IDs not
 - Reel ID is reserved in S3 before the API POST. An ambiguous API response is never blindly
   retried, preventing duplicate posts.
 - Profiles are scanned in rotating batches of five to reduce Instagram rate-limit pressure.
+- Every enabled profile in `profiles.json` is covered by that rotation; with the current schedule,
+  each profile is revisited automatically without requiring the laptop to remain online.
 - Maximum two new reels per profile per run, published round-robin across profiles.
 - Caption starts with `Courtesy @InstagramHandle` and includes the source caption.
 - `cityCode` is always sent as a lowercase city slug.

@@ -82,3 +82,8 @@ jobs:
           retry_wait_seconds: 30
           command: python monitor.py
 
+      - name: Remove restored Instagram session
+        if: always()
+        shell: bash
+        run: rm -f -- "$INSTAGRAM_SESSION_FILE"
+
