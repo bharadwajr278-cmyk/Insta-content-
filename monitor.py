@@ -795,6 +795,20 @@ class Monitor:
 
     def execute(self) -> None:
         profiles = self.load_profiles()
+        only_app_user = os.getenv("ONLY_APP_USERNAME", "").strip()
+        if only_app_user:
+            profiles = [
+                profile for profile in profiles if profile.app_user == only_app_user
+            ]
+            if not profiles:
+                raise RuntimeError(
+                    f"No enabled profiles found for app username: {only_app_user}"
+                )
+            LOG.info(
+                "Manual app-user filter active: %s (%d profiles)",
+                only_app_user,
+                len(profiles),
+            )
         only_city_code = os.getenv("ONLY_CITY_CODE", "").strip().casefold()
         if only_city_code:
             profiles = [
