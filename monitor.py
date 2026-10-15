@@ -48,7 +48,12 @@ def safe_request(method: str, url: str, **kwargs: Any) -> httpx.Response | None:
     for attempt in range(4):
         try:
             return HTTP_CLIENT.request(method, url, **kwargs)
-        except (httpx.ConnectTimeout, httpx.ReadTimeout, httpx.ConnectError) as exc:
+        except (
+            httpx.ConnectTimeout,
+            httpx.ReadTimeout,
+            httpx.NetworkError,
+            httpx.RemoteProtocolError,
+        ) as exc:
             LOG.warning(
                 "HTTP %s %s failed (attempt %d/4): %s",
                 method.upper(),
