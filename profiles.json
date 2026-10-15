@@ -178,7 +178,7 @@
     },
     {
       "instagramUsername": "southdelhifarmsandfloors",
-      "createdByUsername": "919818757700",
+      "createdByUsername": "919818729090",
       "state": "Delhi",
       "city": "Delhi",
       "cityCode": null,
@@ -194,7 +194,7 @@
     },
     {
       "instagramUsername": "oyehoyehomes",
-      "createdByUsername": "919818695050",
+      "createdByUsername": "919818729090",
       "state": "Delhi",
       "city": "Delhi",
       "cityCode": null,
@@ -934,6 +934,142 @@
       "state": "Tamil Nadu",
       "city": "Coimbatore",
       "cityCode": "coimbatore",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "southdelhifloors",
+      "createdByUsername": "919818729090",
+      "state": "Delhi",
+      "city": "Delhi",
+      "cityCode": "delhi",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "ashutosh_bhogra",
+      "createdByUsername": "919818729090",
+      "state": "Delhi",
+      "city": "Delhi",
+      "cityCode": "delhi",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "vishwaspropertyrohtak",
+      "createdByUsername": "919971992279",
+      "state": "Haryana",
+      "city": "Rohtak",
+      "cityCode": "rohtak",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "foujjipropertyrohtak",
+      "createdByUsername": "919971992279",
+      "state": "Haryana",
+      "city": "Rohtak",
+      "cityCode": "rohtak",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "aryan.property.rohtak",
+      "createdByUsername": "919971992279",
+      "state": "Haryana",
+      "city": "Rohtak",
+      "cityCode": "rohtak",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "rohtak_properties1",
+      "createdByUsername": "919971992279",
+      "state": "Haryana",
+      "city": "Rohtak",
+      "cityCode": "rohtak",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "explorerohtakproperty",
+      "createdByUsername": "919971992279",
+      "state": "Haryana",
+      "city": "Rohtak",
+      "cityCode": "rohtak",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "bajajrealtorspanipat",
+      "createdByUsername": "919818246994",
+      "state": "Haryana",
+      "city": "Panipat",
+      "cityCode": "panipat",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "swastik_realestate",
+      "createdByUsername": "919818246994",
+      "state": "Haryana",
+      "city": "Panipat",
+      "cityCode": "panipat",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "global_bricks_official",
+      "createdByUsername": "919818246994",
+      "state": "Haryana",
+      "city": "Panipat",
+      "cityCode": "panipat",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "mohit_uptown_properties",
+      "createdByUsername": "919818246994",
+      "state": "Haryana",
+      "city": "Panipat",
+      "cityCode": "panipat",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "shree_radha_estate",
+      "createdByUsername": "919818246994",
+      "state": "Haryana",
+      "city": "Panipat",
+      "cityCode": "panipat",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "truerealestateadvisory",
+      "createdByUsername": "919560360306",
+      "state": "Kerala",
+      "city": "Ernakulam",
+      "cityCode": "ernakulam",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "nimmykdavid",
+      "createdByUsername": "919560360306",
+      "state": "Kerala",
+      "city": "Ernakulam",
+      "cityCode": "ernakulam",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "archpro.live",
+      "createdByUsername": "918448661666",
+      "state": "Kerala",
+      "city": "Kochi",
+      "cityCode": "kochi",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "dream_realestate_cochin",
+      "createdByUsername": "918448661666",
+      "state": "Kerala",
+      "city": "Kochi",
+      "cityCode": "kochi",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "signature__properties",
+      "createdByUsername": "918448661666",
+      "state": "Kerala",
+      "city": "Kochi",
+      "cityCode": "kochi",
       "enabled": true
     }
   ]

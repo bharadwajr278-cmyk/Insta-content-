@@ -29,7 +29,8 @@ Create the last value locally without printing it:
 
 The worker stores its durable deduplication state at
 `s3://<bucket>/automation/instagram-reel-monitor/state.json`. On the first successful run it
-records a baseline without publishing old reels. Later runs publish only IDs not in that state.
+records a baseline. With `BACKFILL_EXISTING_REELS=true`, baseline IDs are then published gradually
+in profile rotation; otherwise they are only recorded. Later runs publish only unseen Reel IDs.
 
 ### Privacy and compliance
 
@@ -47,6 +48,8 @@ records a baseline without publishing old reels. Later runs publish only IDs not
 
 - One scheduled run at a time through workflow concurrency.
 - Global Reel-ID deduplication across every profile.
+- Existing baseline reels are eligible for controlled backfill, so older reels inside the configured
+  scan window are not hidden by a newer Reel ID that has already been published.
 - Reel ID is reserved in S3 before the API POST. An ambiguous API response is never blindly
   retried, preventing duplicate posts.
 - Profiles are scanned in rotating batches of five to reduce Instagram rate-limit pressure.

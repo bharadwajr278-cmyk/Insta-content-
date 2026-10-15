@@ -43,11 +43,13 @@ jobs:
       INSTAGRAM_SESSION_USERNAME: ${{ secrets.INSTAGRAM_SESSION_USERNAME }}
       INSTAGRAM_SESSION_FILE: ./data/instagram-session
       STATE_OBJECT_KEY: automation/instagram-reel-monitor/state.json
-      SCAN_LIMIT: "5"
+      SCAN_LIMIT: "30"
+      BROWSER_SCAN_LIMIT: "5"
       MAX_NEW_REELS_PER_PROFILE: "2"
+      BACKFILL_EXISTING_REELS: "true"
       PROFILE_BATCH_SIZE: "5"
       ONLY_CITY_CODE: ${{ inputs.city_code || '' }}
-      MAX_PUBLISH_PER_RUN: ${{ inputs.max_publish || '0' }}
+      MAX_PUBLISH_PER_RUN: ${{ inputs.max_publish || '2' }}
       PUBLISH_BASELINE_REELS: ${{ inputs.publish_baseline || 'false' }}
     steps:
       - uses: actions/checkout@v4

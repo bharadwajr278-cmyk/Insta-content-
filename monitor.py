@@ -135,7 +135,15 @@ class Monitor:
         self.bucket = required("S3_BUCKET")
         self.public_base = required("PUBLIC_BASE_URL").rstrip("/")
         self.scan_limit = int(os.getenv("SCAN_LIMIT", "5"))
+        self.browser_scan_limit = min(
+            self.scan_limit, int(os.getenv("BROWSER_SCAN_LIMIT", "5"))
+        )
         self.max_new = int(os.getenv("MAX_NEW_REELS_PER_PROFILE", "2"))
+        self.backfill_existing = os.getenv("BACKFILL_EXISTING_REELS", "true").casefold() in {
+            "1",
+            "true",
+            "yes",
+        }
         self.max_publish_per_run = int(os.getenv("MAX_PUBLISH_PER_RUN", "0"))
         self.publish_baseline_reels = os.getenv("PUBLISH_BASELINE_REELS", "").casefold() in {
             "1",
@@ -379,7 +387,10 @@ class Monitor:
             page.close()
 
         reels: list[Reel] = []
-        for url in hrefs[: self.scan_limit]:
+        # Browser fallback is intentionally shallow: opening every historical
+        # Reel page would exceed a workflow run. Authenticated metadata remains
+        # the primary deep backfill path.
+        for url in hrefs[: self.browser_scan_limit]:
             match = re.search(r"/reel/([^/?#]+)/?", url)
             if not match:
                 continue
@@ -606,7 +617,11 @@ class Monitor:
             "cityCode": reel.profile.city_code,
         }
         idempotency_suffix = os.getenv("IDEMPOTENCY_SUFFIX", "").strip()
-        idempotency_key = f"instagram:{reel.reel_id}"
+        # Match the key used by the manual publisher so the API can reject a
+        # Reel that was already sent before this cloud automation saw it.
+        idempotency_key = (
+            f"instagram:{reel.profile.instagram.casefold()}:{reel.reel_id}"
+        )
         if idempotency_suffix:
             idempotency_key = f"{idempotency_key}:{idempotency_suffix}"
         headers = {
@@ -692,6 +707,19 @@ class Monitor:
         LOG.info("State migration recovered %d post-deployment Reel IDs", recovered)
         return True
 
+    @staticmethod
+    def is_publishable_record(record: dict[str, Any] | None, backfill: bool) -> bool:
+        """Return whether a discovered Reel still needs publishing.
+
+        BASELINE means the Reel was only observed, not sent to the app.  When
+        backfill is enabled those records must remain eligible. All terminal or
+        ambiguous publish states are treated as known so a retry can never
+        create a duplicate.
+        """
+        if record is None:
+            return True
+        return backfill and record.get("status") == "BASELINE"
+
     def execute(self) -> None:
         profiles = self.load_profiles()
         only_city_code = os.getenv("ONLY_CITY_CODE", "").strip().casefold()
@@ -730,7 +758,7 @@ class Monitor:
 
         if state is None:
             state = {
-                "version": 1,
+                "version": 2,
                 "initializedAt": datetime.now(UTC).isoformat(),
                 "profilesBaselined": [],
                 "profileCursor": (cursor + batch_size) % len(profiles),
@@ -748,9 +776,11 @@ class Monitor:
             )
             self.state_store.save(state)
             LOG.info(
-                "Initialized baseline with %d Reel IDs; no old reels published", len(state["reels"])
+                "Initialized baseline with %d Reel IDs", len(state["reels"])
             )
-            return
+            if not self.backfill_existing:
+                LOG.info("Backfill disabled; no baseline reels published")
+                return
 
         known = set(state.get("reels", {}))
         if not priority_names:
@@ -771,6 +801,8 @@ class Monitor:
                             "status": "BASELINE",
                         }
                         known.add(reel.reel_id)
+                        if self.backfill_existing:
+                            pending.append(reel)
                     elif reel.reel_id not in known:
                         pending.append(reel)
                 baselined.add(profile_key)
@@ -782,11 +814,10 @@ class Monitor:
             pending = []
             for reel in reels:
                 record = state.get("reels", {}).get(reel.reel_id)
-                if reel.reel_id in known and not (
-                    self.publish_baseline_reels and record and record.get("status") == "BASELINE"
+                if self.is_publishable_record(
+                    record, self.backfill_existing or self.publish_baseline_reels
                 ):
-                    break
-                pending.append(reel)
+                    pending.append(reel)
             if pending:
                 queues.append(pending[: self.max_new])
 
