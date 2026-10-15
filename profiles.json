@@ -1071,6 +1071,46 @@
       "city": "Kochi",
       "cityCode": "kochi",
       "enabled": true
+    },
+    {
+      "instagramUsername": "housesofchennai",
+      "createdByUsername": "918178159705",
+      "state": "Tamil Nadu",
+      "city": "Chennai",
+      "cityCode": "chennai",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "medsea_properties_49",
+      "createdByUsername": "918178159705",
+      "state": "Tamil Nadu",
+      "city": "Chennai",
+      "cityCode": "chennai",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "thiyagu_realestate_advisor",
+      "createdByUsername": "918178159705",
+      "state": "Tamil Nadu",
+      "city": "Chennai",
+      "cityCode": "chennai",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "nammaveedurealestateacademy",
+      "createdByUsername": "918178159705",
+      "state": "Tamil Nadu",
+      "city": "Chennai",
+      "cityCode": "chennai",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "budget_dream_homes",
+      "createdByUsername": "918178159705",
+      "state": "Tamil Nadu",
+      "city": "Chennai",
+      "cityCode": "chennai",
+      "enabled": true
     }
   ]
 }
