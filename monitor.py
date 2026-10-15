@@ -512,9 +512,9 @@ class Monitor:
                 "-c:v",
                 "libx264",
                 "-preset",
-                "medium",
+                "slow",
                 "-crf",
-                "18",
+                "16",
                 "-pix_fmt",
                 "yuv420p",
                 "-profile:v",
@@ -596,6 +596,10 @@ class Monitor:
         return f"{self.public_base}/{quote(key, safe='/')}"
 
     def publish(self, reel: Reel, video_url: str, thumbnail_url: str, meta: dict[str, Any]) -> bool:
+        if not reel.profile.city_code.strip():
+            raise ValueError(
+                f"Refusing to publish Reel {reel.reel_id}: cityCode is required"
+            )
         cleaned = " ".join(reel.caption.split())
         courtesy = f"{COURTESY} @{reel.profile.instagram}"
         text = f"{courtesy}\n\n{cleaned}" if cleaned else courtesy
