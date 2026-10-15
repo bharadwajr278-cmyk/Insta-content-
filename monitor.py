@@ -630,7 +630,16 @@ class Monitor:
         }
         if self.api_token:
             headers["Authorization"] = f"Bearer {self.api_token}"
-        response = safe_request("POST", self.api_url, json=payload, headers=headers)
+        # Publishing can take several minutes while the app validates the S3 media.
+        # Keep the shared client defaults for discovery/download requests, but allow
+        # this long-running API operation to finish instead of timing out at 60s.
+        response = safe_request(
+            "POST",
+            self.api_url,
+            json=payload,
+            headers=headers,
+            timeout=httpx.Timeout(1200.0, connect=30.0),
+        )
         if response is None:
             LOG.error("API publish failed for Reel %s; skipping", reel.reel_id)
             return False
