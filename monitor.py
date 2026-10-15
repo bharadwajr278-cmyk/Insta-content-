@@ -188,6 +188,41 @@ class Monitor:
                 for name, value in self.loader.context._session.cookies.get_dict().items()
             ]
         )
+        self.api_reel_ids: set[str] = set()
+
+    def fetch_api_reel_ids(self, all_pages: bool = True) -> set[str]:
+        """Return Instagram Reel IDs already present in the app feed."""
+        reel_ids: set[str] = set()
+        headers = {"Authorization": f"Bearer {self.api_token}"} if self.api_token else {}
+        max_pages = 100 if all_pages else 1
+        for page in range(max_pages):
+            response = safe_request(
+                "GET",
+                self.api_url,
+                headers=headers,
+                params={"page": page, "size": 100},
+            )
+            if response is None:
+                break
+            response.raise_for_status()
+            body = response.json()
+            for post in body.get("content", []):
+                for media in post.get("socialMultimediaList") or []:
+                    match = re.search(
+                        r"/instagram/[^/]+/([^/?#.]+)\.mp4(?:[?#]|$)",
+                        media.get("url", ""),
+                        re.IGNORECASE,
+                    )
+                    if match:
+                        reel_ids.add(match.group(1))
+            if body.get("last", True):
+                break
+        return reel_ids
+
+    def already_published_in_api(self, reel_id: str) -> bool:
+        """Perform a final live-feed check immediately before media processing."""
+        self.api_reel_ids.update(self.fetch_api_reel_ids(all_pages=False))
+        return reel_id in self.api_reel_ids
 
     @staticmethod
     def load_profiles() -> list[Profile]:
@@ -651,6 +686,19 @@ class Monitor:
         return True
 
     def process(self, reel: Reel, state: dict[str, Any]) -> bool:
+        if self.already_published_in_api(reel.reel_id):
+            state["reels"][reel.reel_id] = {
+                "profile": reel.profile.instagram,
+                "publishedAt": reel.published_at,
+                "status": "PUBLISHED",
+            }
+            self.state_store.save(state)
+            LOG.info(
+                "Skipping Reel %s from @%s: Reel ID already exists in app API",
+                reel.reel_id,
+                reel.profile.instagram,
+            )
+            return False
         with tempfile.TemporaryDirectory(prefix="reel-") as folder:
             work = Path(folder)
             source = work / "source.mp4"
@@ -744,6 +792,8 @@ class Monitor:
                 raise RuntimeError(f"No enabled profiles found for city code: {only_city_code}")
             LOG.info("Manual city filter active: %s (%d profiles)", only_city_code, len(profiles))
         state = self.state_store.load()
+        self.api_reel_ids = self.fetch_api_reel_ids(all_pages=True)
+        LOG.info("Loaded %d existing Reel IDs from app API", len(self.api_reel_ids))
         if state is not None and self.migrate_state(state):
             self.state_store.save(state)
         cursor = int((state or {}).get("profileCursor", 0)) % len(profiles)
@@ -826,6 +876,15 @@ class Monitor:
                 continue
             pending = []
             for reel in reels:
+                if reel.reel_id in self.api_reel_ids:
+                    if reel.reel_id not in state["reels"]:
+                        state["reels"][reel.reel_id] = {
+                            "profile": reel.profile.instagram,
+                            "publishedAt": reel.published_at,
+                            "status": "PUBLISHED",
+                        }
+                        state_changed = True
+                    continue
                 record = state.get("reels", {}).get(reel.reel_id)
                 if self.is_publishable_record(
                     record, self.backfill_existing or self.publish_baseline_reels
