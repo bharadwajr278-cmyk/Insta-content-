@@ -500,7 +500,10 @@ class Monitor:
             return self.discover_instaloader(profile)
         except Exception as exc:
             metadata_error = exc
-            LOG.warning("Metadata discovery failed for @%s: %s", profile.instagram, exc)
+            LOG.info(
+                "Direct metadata unavailable for @%s; using authenticated browser fallback",
+                profile.instagram,
+            )
         try:
             return self.discover_browser(profile)
         except Exception as browser_error:
@@ -517,7 +520,11 @@ class Monitor:
             "Range": "bytes=0-",
         }
         cookies = self.loader.context._session.cookies.get_dict()
-        response = safe_request("GET", url, headers=headers, cookies=cookies)
+        if cookies:
+            headers["Cookie"] = "; ".join(
+                f"{name}={value}" for name, value in cookies.items()
+            )
+        response = safe_request("GET", url, headers=headers)
         if response is None:
             LOG.error("Media download failed for %s; skipping reel", redacted_url(url))
             return False
@@ -939,6 +946,9 @@ class Monitor:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    # Avoid exposing complete signed Instagram CDN URLs in Actions logs.
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
     monitor = Monitor()
     try:
         monitor.execute()

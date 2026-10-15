@@ -46,10 +46,12 @@ jobs:
       SCAN_LIMIT: "30"
       BROWSER_SCAN_LIMIT: "5"
       MAX_NEW_REELS_PER_PROFILE: "2"
-      BACKFILL_EXISTING_REELS: "true"
-      PROFILE_BATCH_SIZE: "5"
+      # Strict new-only mode: previously observed or already-published Reel IDs
+      # must never be backfilled into the app.
+      BACKFILL_EXISTING_REELS: "false"
+      PROFILE_BATCH_SIZE: "10"
       ONLY_CITY_CODE: ${{ inputs.city_code || '' }}
-      MAX_PUBLISH_PER_RUN: ${{ inputs.max_publish || '2' }}
+      MAX_PUBLISH_PER_RUN: ${{ inputs.max_publish || '0' }}
       PUBLISH_BASELINE_REELS: ${{ inputs.publish_baseline || 'false' }}
     steps:
       - uses: actions/checkout@v4
