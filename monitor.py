@@ -224,6 +224,7 @@ class Monitor:
         )
         self.api_reel_ids: set[str] = set()
         self.known_reel_ids: set[str] = set()
+        self.api_history_available = True
 
     def in_configured_shard(self, profile: Profile) -> bool:
         """Assign profiles to stable shards without moving them when profiles are added."""
@@ -241,10 +242,23 @@ class Monitor:
                 self.api_url,
                 headers=headers,
                 params={"page": page, "size": 100},
+                timeout=httpx.Timeout(12.0, connect=5.0),
             )
             if response is None:
+                self.api_history_available = False
+                LOG.warning(
+                    "App API history is temporarily unavailable; continuing with persisted Reel-ID state"
+                )
                 break
-            response.raise_for_status()
+            try:
+                response.raise_for_status()
+            except httpx.HTTPStatusError as exc:
+                self.api_history_available = False
+                LOG.warning(
+                    "App API history returned HTTP %s; continuing with persisted Reel-ID state",
+                    exc.response.status_code,
+                )
+                break
             body = response.json()
             for post in body.get("content", []):
                 for media in post.get("socialMultimediaList") or []:
@@ -261,6 +275,8 @@ class Monitor:
 
     def already_published_in_api(self, reel_id: str) -> bool:
         """Perform a final live-feed check immediately before media processing."""
+        if not self.api_history_available:
+            return reel_id in self.api_reel_ids
         self.api_reel_ids.update(self.fetch_api_reel_ids(all_pages=False))
         return reel_id in self.api_reel_ids
 
