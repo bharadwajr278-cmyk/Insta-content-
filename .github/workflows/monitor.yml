@@ -2,20 +2,30 @@ name: Monitor Instagram reels
 
 on:
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
     inputs:
       city_code:
-        description: Optional city code to scan exclusively
+        description: Optional cityCode to synchronize exclusively
         required: false
         type: string
       max_publish:
-        description: Maximum reels to publish in this manual run (0 means unlimited)
+        description: Maximum Reels to publish (0 means use configured default)
         required: false
-        default: "0"
+        default: "20"
         type: string
-      publish_baseline:
-        description: Allow a manual run to publish the latest baseline reel
+      sync_mode:
+        description: Incremental, historical backfill, or baseline-only
+        required: true
+        default: incremental
+        type: choice
+        options: [incremental, backfill, baseline]
+      backfill_since:
+        description: Optional ISO-8601 lower bound for historical backfill
+        required: false
+        type: string
+      dry_run:
+        description: Discover and record only; do not upload or publish
         required: false
         default: false
         type: boolean
@@ -30,11 +40,7 @@ permissions:
 jobs:
   monitor:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [0, 1, 2, 3]
+    timeout-minutes: 30
     env:
       CLIP_API_URL: ${{ secrets.CLIP_API_URL }}
       CLIP_API_TOKEN: ${{ secrets.CLIP_API_TOKEN }}
@@ -46,39 +52,37 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
       INSTAGRAM_SESSION_USERNAME: ${{ secrets.INSTAGRAM_SESSION_USERNAME }}
       INSTAGRAM_SESSION_FILE: ./data/instagram-session
-      STATE_OBJECT_KEY: automation/instagram-reel-monitor/state-${{ matrix.shard }}.json
+      INSTAGRAM_PROVIDER: ${{ vars.INSTAGRAM_PROVIDER || 'instaloader' }}
+      INSTAGRAM_GRAPH_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_GRAPH_ACCESS_TOKEN }}
+      INSTAGRAM_GRAPH_API_VERSION: ${{ vars.INSTAGRAM_GRAPH_API_VERSION || 'v24.0' }}
+      DATABASE_PATH: ./data/monitor.db
+      DATABASE_OBJECT_KEY: automation/instagram-reel-monitor/monitor.db
       LEGACY_STATE_OBJECT_KEY: automation/instagram-reel-monitor/state.json
-      PROFILE_SHARD_COUNT: "4"
-      PROFILE_SHARD_INDEX: ${{ matrix.shard }}
       SCAN_LIMIT: "30"
-      BROWSER_SCAN_LIMIT: "5"
+      ACCOUNTS_PER_RUN: "20"
       MAX_NEW_REELS_PER_PROFILE: "2"
-      # Strict new-only mode: previously observed or already-published Reel IDs
-      # must never be backfilled into the app.
-      BACKFILL_EXISTING_REELS: "false"
-      PROFILE_BATCH_SIZE: "5"
-      BROWSER_PROFILE_TIMEOUT_MS: "10000"
-      BROWSER_DETAIL_TIMEOUT_MS: "18000"
+      MAX_PUBLISH_PER_RUN: ${{ inputs.max_publish || '20' }}
+      LOOKBACK_HOURS: "48"
+      MAX_VIDEO_BYTES: "262144000"
+      REQUEST_ATTEMPTS: "4"
       ONLY_CITY_CODE: ${{ inputs.city_code || '' }}
-      MAX_PUBLISH_PER_RUN: ${{ inputs.max_publish || '0' }}
-      PUBLISH_BASELINE_REELS: ${{ inputs.publish_baseline || 'false' }}
+      SYNC_MODE: ${{ inputs.sync_mode || 'incremental' }}
+      BACKFILL_SINCE: ${{ inputs.backfill_since || '' }}
+      DRY_RUN: ${{ inputs.dry_run || 'false' }}
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
-
       - name: Install runtime
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends ffmpeg
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          python -m playwright install --with-deps chromium
-
       - name: Restore encrypted Instagram session
+        if: env.INSTAGRAM_PROVIDER == 'instaloader'
         env:
           INSTAGRAM_SESSION_B64: ${{ secrets.INSTAGRAM_SESSION_B64 }}
         run: |
@@ -86,17 +90,10 @@ jobs:
           mkdir -p data
           printf '%s' "$INSTAGRAM_SESSION_B64" | base64 --decode > "$INSTAGRAM_SESSION_FILE"
           chmod 600 "$INSTAGRAM_SESSION_FILE"
-
+      - name: Validate configuration
+        run: python -m reel_monitor.cli validate-config
       - name: Monitor and publish new reels
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 18
-          max_attempts: 2
-          retry_wait_seconds: 15
-          command: python monitor.py
-
+        run: python -m reel_monitor.cli sync
       - name: Remove restored Instagram session
-        if: always()
-        shell: bash
+        if: always() && env.INSTAGRAM_PROVIDER == 'instaloader'
         run: rm -f -- "$INSTAGRAM_SESSION_FILE"
-

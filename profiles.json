@@ -6,7 +6,9 @@
       "state": "Haryana",
       "city": "Gurugram",
       "cityCode": "gurugram",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "urbanturbanrealtors",
@@ -14,7 +16,9 @@
       "state": "Haryana",
       "city": "Gurugram",
       "cityCode": "gurugram",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "bhatiaproperties1987",
@@ -22,7 +26,9 @@
       "state": "Haryana",
       "city": "Gurugram",
       "cityCode": "gurugram",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "shalini_gugnani",
@@ -30,7 +36,9 @@
       "state": "Haryana",
       "city": "Gurugram",
       "cityCode": "gurugram",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "propertygallery13",
@@ -38,191 +46,239 @@
       "state": "Haryana",
       "city": "Gurugram",
       "cityCode": "gurugram",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "betterhomzofficial",
       "createdByUsername": "919560160177",
       "state": "Haryana",
       "city": "Faridabad",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "faridabad",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "binny.kakkar",
       "createdByUsername": "919560160177",
       "state": "Haryana",
       "city": "Faridabad",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "faridabad",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "faridabadrealty",
       "createdByUsername": "919560160177",
       "state": "Haryana",
       "city": "Faridabad",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "faridabad",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "property.uncle_",
       "createdByUsername": "919560160177",
       "state": "Haryana",
       "city": "Faridabad",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "faridabad",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "modibuildtechindiaofficial",
       "createdByUsername": "919560160177",
       "state": "Haryana",
       "city": "Faridabad",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "faridabad",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "iamnidhiahlawat",
       "createdByUsername": "919560209560",
       "state": "Uttar Pradesh",
       "city": "Noida",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "noida",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "irealty365",
       "createdByUsername": "918448748448",
       "state": "Uttar Pradesh",
       "city": "Noida",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "noida",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "noidarealty",
       "createdByUsername": "918448748448",
       "state": "Uttar Pradesh",
       "city": "Noida",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "noida",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "noida.ig",
       "createdByUsername": "918448748448",
       "state": "Uttar Pradesh",
       "city": "Noida",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "noida",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "one.stop_noida",
       "createdByUsername": "918448748448",
       "state": "Uttar Pradesh",
       "city": "Noida",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "noida",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "kabeer_t",
       "createdByUsername": "919560209560",
       "state": "Uttar Pradesh",
       "city": "Noida",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "noida",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "realtychirag",
       "createdByUsername": "918448748448",
       "state": "Uttar Pradesh",
       "city": "Noida",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "noida",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "ekta7819",
       "createdByUsername": "918448748448",
       "state": "Uttar Pradesh",
       "city": "Noida",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "noida",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "realestatewithshashank",
       "createdByUsername": "918448748448",
       "state": "Uttar Pradesh",
       "city": "Noida",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "noida",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "rk.ravikewalramani",
       "createdByUsername": "918448663666",
       "state": "Maharashtra",
       "city": "Mumbai",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "mumbai",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "propertiesbyru",
       "createdByUsername": "918448660666",
       "state": "Maharashtra",
       "city": "Mumbai",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "mumbai",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "jaythakkar.realty",
       "createdByUsername": "918448664666",
       "state": "Maharashtra",
       "city": "Mumbai",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "mumbai",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "southdelhifarmsandfloors",
       "createdByUsername": "919818729090",
       "state": "Delhi",
       "city": "Delhi",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "delhi",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "delhipropertybazar",
       "createdByUsername": "919818729090",
       "state": "Delhi",
       "city": "Delhi",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "delhi",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "oyehoyehomes",
       "createdByUsername": "919818729090",
       "state": "Delhi",
       "city": "Delhi",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "delhi",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "snehil_realestate",
       "createdByUsername": "918800658006",
       "state": "Maharashtra",
       "city": "Pune",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "pune",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "hallroomkitchen",
       "createdByUsername": "919717757675",
       "state": "Maharashtra",
       "city": "Pune",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "pune",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "pavan_realestate",
       "createdByUsername": "919818711717",
       "state": "Maharashtra",
       "city": "Pune",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "pune",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "propertyhubgoa",
@@ -230,7 +286,9 @@
       "state": "Goa",
       "city": "Goa",
       "cityCode": "goa",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "thegoanpropertyguys",
@@ -238,7 +296,9 @@
       "state": "Goa",
       "city": "Goa",
       "cityCode": "goa",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "property__goa",
@@ -246,7 +306,9 @@
       "state": "Goa",
       "city": "Goa",
       "cityCode": "goa",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "sketchpropertiesgoa",
@@ -254,7 +316,9 @@
       "state": "Goa",
       "city": "Goa",
       "cityCode": "goa",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "greenestates_goa",
@@ -262,7 +326,9 @@
       "state": "Goa",
       "city": "Goa",
       "cityCode": "goa",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "curlyheadrealtor",
@@ -270,7 +336,9 @@
       "state": "Haryana",
       "city": "Gurugram",
       "cityCode": "gurugram",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "pulkitinvest",
@@ -278,7 +346,9 @@
       "state": "Haryana",
       "city": "Gurugram",
       "cityCode": "gurugram",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "hridhaymehraa",
@@ -286,7 +356,9 @@
       "state": "Haryana",
       "city": "Gurugram",
       "cityCode": "gurugram",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "notjustabroker",
@@ -294,7 +366,9 @@
       "state": "Haryana",
       "city": "Gurugram",
       "cityCode": "gurugram",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "durva.realestate",
@@ -302,47 +376,59 @@
       "state": "Haryana",
       "city": "Gurugram",
       "cityCode": "gurugram",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "landandstoreys",
       "createdByUsername": "919560160178",
       "state": "Haryana",
       "city": "Faridabad",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "faridabad",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "arjav.premiumrealtyinfra",
       "createdByUsername": "919560160178",
       "state": "Haryana",
       "city": "Faridabad",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "faridabad",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "mohit.realty",
       "createdByUsername": "919560160178",
       "state": "Haryana",
       "city": "Faridabad",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "faridabad",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "khatri_buildtech",
       "createdByUsername": "919560160178",
       "state": "Haryana",
       "city": "Faridabad",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "faridabad",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "itsraghavnandaproperties",
       "createdByUsername": "919560160178",
       "state": "Haryana",
       "city": "Faridabad",
-      "cityCode": null,
-      "enabled": true
+      "cityCode": "faridabad",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "propertytransactionguru",
@@ -350,7 +436,9 @@
       "state": "maharashtra",
       "city": "Mumbai",
       "cityCode": "mumbai",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "realestatewithmayank",
@@ -358,7 +446,9 @@
       "state": "Maharashtra",
       "city": "Mumbai",
       "cityCode": "mumbai",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "makkotwalrealty",
@@ -366,7 +456,9 @@
       "state": "Maharashtra",
       "city": "Mumbai",
       "cityCode": "mumbai",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "bangalorerealestate_",
@@ -374,7 +466,9 @@
       "state": "Karnataka",
       "city": "Bangalore",
       "cityCode": "bengaluru",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "bangalorepropertyguide",
@@ -382,7 +476,9 @@
       "state": "Karnataka",
       "city": "Bangalore",
       "cityCode": "bengaluru",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "vjrestate",
@@ -390,7 +486,9 @@
       "state": "Karnataka",
       "city": "Bangalore",
       "cityCode": "bengaluru",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "property.circle_",
@@ -398,7 +496,9 @@
       "state": "Karnataka",
       "city": "Bangalore",
       "cityCode": "bengaluru",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "housing_estates_realty",
@@ -406,7 +506,9 @@
       "state": "Karnataka",
       "city": "Bangalore",
       "cityCode": "bengaluru",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "allaboutrealestate.ai",
@@ -414,7 +516,9 @@
       "state": "Karnataka",
       "city": "Bengaluru",
       "cityCode": "bengaluru",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "yellowzonerealtors",
@@ -422,7 +526,9 @@
       "state": "Karnataka",
       "city": "Bengaluru",
       "cityCode": "bengaluru",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "address_advisors",
@@ -430,7 +536,9 @@
       "state": "Karnataka",
       "city": "Bengaluru",
       "cityCode": "bengaluru",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "myhomelocator",
@@ -438,7 +546,9 @@
       "state": "Karnataka",
       "city": "Bengaluru",
       "cityCode": "bengaluru",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "patel_realty_kota",
@@ -446,7 +556,9 @@
       "state": "Rajasthan",
       "city": "Kota",
       "cityCode": "kota",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "gharhai_",
@@ -454,7 +566,9 @@
       "state": "Rajasthan",
       "city": "Kota",
       "cityCode": "kota",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "shivshakti_property.meerut",
@@ -462,7 +576,9 @@
       "state": "Uttar Pradesh",
       "city": "Meerut",
       "cityCode": "meerut",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "equity_properties_meerut",
@@ -470,7 +586,9 @@
       "state": "Uttar Pradesh",
       "city": "Meerut",
       "cityCode": "meerut",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "shreekunjgreens_",
@@ -478,7 +596,9 @@
       "state": "Uttar Pradesh",
       "city": "Meerut",
       "cityCode": "meerut",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "meerut_propperties",
@@ -486,7 +606,9 @@
       "state": "Uttar Pradesh",
       "city": "Meerut",
       "cityCode": "meerut",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "simplyshilpi",
@@ -494,7 +616,9 @@
       "state": "Uttar Pradesh",
       "city": "Lucknow",
       "cityCode": "lucknow",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "magical_estate",
@@ -502,7 +626,9 @@
       "state": "Uttar Pradesh",
       "city": "Lucknow",
       "cityCode": "lucknow",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "aapkiproperty",
@@ -510,7 +636,9 @@
       "state": "Uttar Pradesh",
       "city": "Lucknow",
       "cityCode": "lucknow",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "lucknowproperty05",
@@ -518,7 +646,9 @@
       "state": "Uttar Pradesh",
       "city": "Lucknow",
       "cityCode": "lucknow",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "team_aman_chawla",
@@ -526,7 +656,9 @@
       "state": "Uttar Pradesh",
       "city": "Lucknow",
       "cityCode": "lucknow",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "aman_properties_",
@@ -534,7 +666,9 @@
       "state": "Uttar Pradesh",
       "city": "Lucknow",
       "cityCode": "lucknow",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "propertyvisits",
@@ -542,7 +676,9 @@
       "state": "Uttar Pradesh",
       "city": "Lucknow",
       "cityCode": "lucknow",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "dev_lko_vlog",
@@ -550,7 +686,9 @@
       "state": "Uttar Pradesh",
       "city": "Lucknow",
       "cityCode": "lucknow",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "comingkeys",
@@ -558,7 +696,9 @@
       "state": "Gujarat",
       "city": "Dholera",
       "cityCode": "dholera",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "dholera_property_delar_offcial",
@@ -566,7 +706,9 @@
       "state": "Gujarat",
       "city": "Dholera",
       "cityCode": "dholera",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "new_india_infratech",
@@ -574,7 +716,9 @@
       "state": "Gujarat",
       "city": "Dholera",
       "cityCode": "dholera",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "mirrikhgroup",
@@ -582,7 +726,9 @@
       "state": "Gujarat",
       "city": "Dholera",
       "cityCode": "dholera",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "shivdhararealty",
@@ -590,7 +736,9 @@
       "state": "Gujarat",
       "city": "Dholera",
       "cityCode": "dholera",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "cosmosrealestate_09",
@@ -598,7 +746,9 @@
       "state": "Gujarat",
       "city": "Dholera",
       "cityCode": "dholera",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "v5realty",
@@ -606,7 +756,9 @@
       "state": "Gujarat",
       "city": "Dholera",
       "cityCode": "dholera",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "_propertydeccoded",
@@ -614,7 +766,9 @@
       "state": "Gujarat",
       "city": "Dholera",
       "cityCode": "dholera",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "dholera.man",
@@ -622,7 +776,9 @@
       "state": "Gujarat",
       "city": "Dholera",
       "cityCode": "dholera",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "bookmyassets",
@@ -630,7 +786,9 @@
       "state": "Gujarat",
       "city": "Dholera",
       "cityCode": "dholera",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "sumeet_kharb_01",
@@ -638,7 +796,9 @@
       "state": "Gujarat",
       "city": "Dholera",
       "cityCode": "dholera",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "ramarealty.in",
@@ -646,7 +806,9 @@
       "state": "Gujarat",
       "city": "Dholera",
       "cityCode": "dholera",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "shubhinfraventures",
@@ -654,7 +816,9 @@
       "state": "Gujarat",
       "city": "Dholera",
       "cityCode": "dholera",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "7oakdevelopers",
@@ -662,7 +826,9 @@
       "state": "Gujarat",
       "city": "Dholera",
       "cityCode": "dholera",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "bablusingh_05",
@@ -670,7 +836,9 @@
       "state": "Gujarat",
       "city": "Dholera",
       "cityCode": "dholera",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "propertyroundofficial",
@@ -678,7 +846,9 @@
       "state": "Himachal Pradesh",
       "city": "Shimla",
       "cityCode": "shimla",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "hillhomes.hp",
@@ -686,7 +856,9 @@
       "state": "Himachal Pradesh",
       "city": "Shimla",
       "cityCode": "shimla",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "estate_drive",
@@ -694,7 +866,9 @@
       "state": "Himachal Pradesh",
       "city": "Shimla",
       "cityCode": "shimla",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "clifftonvalley",
@@ -702,7 +876,9 @@
       "state": "Himachal Pradesh",
       "city": "Shimla",
       "cityCode": "shimla",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "eastlin_properties",
@@ -710,7 +886,9 @@
       "state": "Himachal Pradesh",
       "city": "Shimla",
       "cityCode": "shimla",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "udupi_properties",
@@ -718,7 +896,9 @@
       "state": "Karnataka",
       "city": "Udupi",
       "cityCode": "udupi",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "udupi.estates",
@@ -726,7 +906,9 @@
       "state": "Karnataka",
       "city": "Udupi",
       "cityCode": "udupi",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "buy_2_sale",
@@ -734,7 +916,9 @@
       "state": "Karnataka",
       "city": "Udupi",
       "cityCode": "udupi",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "Propertesia",
@@ -742,7 +926,9 @@
       "state": "Punjab",
       "city": "Mohali",
       "cityCode": "mohali",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "iamjodhmavi",
@@ -750,7 +936,9 @@
       "state": "Punjab",
       "city": "Mohali",
       "cityCode": "mohali",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "urbanskyland_",
@@ -758,7 +946,9 @@
       "state": "Punjab",
       "city": "Mohali",
       "cityCode": "mohali",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "propertyupdatespunjab",
@@ -766,7 +956,9 @@
       "state": "Punjab",
       "city": "Mohali",
       "cityCode": "mohali",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "harryduttchandigarh",
@@ -774,7 +966,9 @@
       "state": "Punjab",
       "city": "Mohali",
       "cityCode": "mohali",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "rm_realtor67",
@@ -782,7 +976,9 @@
       "state": "Punjab",
       "city": "Mohali",
       "cityCode": "mohali",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "property_bysarabjit",
@@ -790,7 +986,9 @@
       "state": "Punjab",
       "city": "Mohali",
       "cityCode": "mohali",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "propertieswithsmittt",
@@ -798,7 +996,9 @@
       "state": "Gujarat",
       "city": "Surat",
       "cityCode": "surat",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "urban_property_",
@@ -806,7 +1006,9 @@
       "state": "Gujarat",
       "city": "Surat",
       "cityCode": "surat",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "aditya_property_management",
@@ -814,7 +1016,9 @@
       "state": "Gujarat",
       "city": "Surat",
       "cityCode": "surat",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "vansh__property",
@@ -822,7 +1026,9 @@
       "state": "Gujarat",
       "city": "Surat",
       "cityCode": "surat",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "varachha_property",
@@ -830,7 +1036,9 @@
       "state": "Gujarat",
       "city": "Surat",
       "cityCode": "surat",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "propertygandhinagar",
@@ -838,7 +1046,9 @@
       "state": "Gujarat",
       "city": "Gandhinagar",
       "cityCode": "gandhinagar",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "nester_space",
@@ -846,7 +1056,9 @@
       "state": "Gujarat",
       "city": "Gandhinagar",
       "cityCode": "gandhinagar",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "gajanan__properties",
@@ -854,7 +1066,9 @@
       "state": "Gujarat",
       "city": "Gandhinagar",
       "cityCode": "gandhinagar",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "theprivilon",
@@ -862,7 +1076,9 @@
       "state": "Gujarat",
       "city": "Gandhinagar",
       "cityCode": "gandhinagar",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "unlocksuperproperty",
@@ -870,7 +1086,9 @@
       "state": "Punjab",
       "city": "Amritsar",
       "cityCode": "amritsar",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "anuradha_real_estate_amritsar",
@@ -878,7 +1096,9 @@
       "state": "Punjab",
       "city": "Amritsar",
       "cityCode": "amritsar",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "star_real_estate7566",
@@ -886,7 +1106,9 @@
       "state": "Punjab",
       "city": "Amritsar",
       "cityCode": "amritsar",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "trusted_propertypartner",
@@ -894,7 +1116,9 @@
       "state": "Punjab",
       "city": "Amritsar",
       "cityCode": "amritsar",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "a1propertyamritsar",
@@ -902,7 +1126,9 @@
       "state": "Punjab",
       "city": "Amritsar",
       "cityCode": "amritsar",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "covai_property_",
@@ -910,7 +1136,9 @@
       "state": "Tamil Nadu",
       "city": "Coimbatore",
       "cityCode": "coimbatore",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "covai_vl_real_estate",
@@ -918,7 +1146,9 @@
       "state": "Tamil Nadu",
       "city": "Coimbatore",
       "cityCode": "coimbatore",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "premhomescbe",
@@ -926,7 +1156,9 @@
       "state": "Tamil Nadu",
       "city": "Coimbatore",
       "cityCode": "coimbatore",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "southdelhifloors",
@@ -934,7 +1166,9 @@
       "state": "Delhi",
       "city": "Delhi",
       "cityCode": "delhi",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "ashutosh_bhogra",
@@ -942,7 +1176,9 @@
       "state": "Delhi",
       "city": "Delhi",
       "cityCode": "delhi",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "vishwaspropertyrohtak",
@@ -950,7 +1186,9 @@
       "state": "Haryana",
       "city": "Rohtak",
       "cityCode": "rohtak",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "foujjipropertyrohtak",
@@ -958,7 +1196,9 @@
       "state": "Haryana",
       "city": "Rohtak",
       "cityCode": "rohtak",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "aryan.property.rohtak",
@@ -966,7 +1206,9 @@
       "state": "Haryana",
       "city": "Rohtak",
       "cityCode": "rohtak",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "rohtak_properties1",
@@ -974,7 +1216,9 @@
       "state": "Haryana",
       "city": "Rohtak",
       "cityCode": "rohtak",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "explorerohtakproperty",
@@ -982,7 +1226,9 @@
       "state": "Haryana",
       "city": "Rohtak",
       "cityCode": "rohtak",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "bajajrealtorspanipat",
@@ -990,7 +1236,9 @@
       "state": "Haryana",
       "city": "Panipat",
       "cityCode": "panipat",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "swastik_realestate",
@@ -998,7 +1246,9 @@
       "state": "Haryana",
       "city": "Panipat",
       "cityCode": "panipat",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "global_bricks_official",
@@ -1006,7 +1256,9 @@
       "state": "Haryana",
       "city": "Panipat",
       "cityCode": "panipat",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "mohit_uptown_properties",
@@ -1014,7 +1266,9 @@
       "state": "Haryana",
       "city": "Panipat",
       "cityCode": "panipat",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "shree_radha_estate",
@@ -1022,7 +1276,9 @@
       "state": "Haryana",
       "city": "Panipat",
       "cityCode": "panipat",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "truerealestateadvisory",
@@ -1030,7 +1286,9 @@
       "state": "Kerala",
       "city": "Ernakulam",
       "cityCode": "ernakulam",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "nimmykdavid",
@@ -1038,7 +1296,9 @@
       "state": "Kerala",
       "city": "Ernakulam",
       "cityCode": "ernakulam",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "archpro.live",
@@ -1046,7 +1306,9 @@
       "state": "Kerala",
       "city": "Kochi",
       "cityCode": "kochi",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "dream_realestate_cochin",
@@ -1054,7 +1316,9 @@
       "state": "Kerala",
       "city": "Kochi",
       "cityCode": "kochi",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "signature__properties",
@@ -1062,7 +1326,9 @@
       "state": "Kerala",
       "city": "Kochi",
       "cityCode": "kochi",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "housesofchennai",
@@ -1070,7 +1336,9 @@
       "state": "Tamil Nadu",
       "city": "Chennai",
       "cityCode": "chennai",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "medsea_properties_49",
@@ -1078,7 +1346,9 @@
       "state": "Tamil Nadu",
       "city": "Chennai",
       "cityCode": "chennai",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "thiyagu_realestate_advisor",
@@ -1086,7 +1356,9 @@
       "state": "Tamil Nadu",
       "city": "Chennai",
       "cityCode": "chennai",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "nammaveedurealestateacademy",
@@ -1094,7 +1366,9 @@
       "state": "Tamil Nadu",
       "city": "Chennai",
       "cityCode": "chennai",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "budget_dream_homes",
@@ -1102,7 +1376,9 @@
       "state": "Tamil Nadu",
       "city": "Chennai",
       "cityCode": "chennai",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "suresh_avadi",
@@ -1110,7 +1386,9 @@
       "state": "Tamil Nadu",
       "city": "Chennai",
       "cityCode": "chennai",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "24k_realtors",
@@ -1118,7 +1396,9 @@
       "state": "Tamil Nadu",
       "city": "Chennai",
       "cityCode": "chennai",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "chennaisweethomes",
@@ -1126,7 +1406,9 @@
       "state": "Tamil Nadu",
       "city": "Chennai",
       "cityCode": "chennai",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "scc.homes_",
@@ -1134,7 +1416,9 @@
       "state": "Tamil Nadu",
       "city": "Chennai",
       "cityCode": "chennai",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "chennai_happy_homes",
@@ -1142,7 +1426,9 @@
       "state": "Tamil Nadu",
       "city": "Chennai",
       "cityCode": "chennai",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "shripali_realtors",
@@ -1150,7 +1436,9 @@
       "state": "West Bengal",
       "city": "Howrah",
       "cityCode": "howrah",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "greenpropertykolkata",
@@ -1158,7 +1446,9 @@
       "state": "West Bengal",
       "city": "Howrah",
       "cityCode": "howrah",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "howrah_.properties",
@@ -1166,7 +1456,9 @@
       "state": "West Bengal",
       "city": "Howrah",
       "cityCode": "howrah",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "sspropertykol",
@@ -1174,7 +1466,9 @@
       "state": "West Bengal",
       "city": "Howrah",
       "cityCode": "howrah",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "phela_ghar",
@@ -1182,7 +1476,9 @@
       "state": "West Bengal",
       "city": "Howrah",
       "cityCode": "howrah",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "radherealty.in",
@@ -1190,7 +1486,9 @@
       "state": "Gujarat",
       "city": "Ahemdabad",
       "cityCode": "ahemdabad",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "theearthrealty",
@@ -1198,7 +1496,9 @@
       "state": "Gujarat",
       "city": "Ahemdabad",
       "cityCode": "ahemdabad",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "dekhorealestate",
@@ -1206,7 +1506,9 @@
       "state": "Gujarat",
       "city": "Ahemdabad",
       "cityCode": "ahemdabad",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "gujarat.realestate.guide",
@@ -1214,7 +1516,9 @@
       "state": "Gujarat",
       "city": "Ahemdabad",
       "cityCode": "ahemdabad",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "themakaanfactory",
@@ -1222,7 +1526,9 @@
       "state": "Gujarat",
       "city": "Ahemdabad",
       "cityCode": "ahemdabad",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "property_king_gj",
@@ -1230,7 +1536,9 @@
       "state": "Gujarat",
       "city": "Ahemdabad",
       "cityCode": "ahemdabad",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     },
     {
       "instagramUsername": "aayudhiinfra",
@@ -1238,7 +1546,9 @@
       "state": "Gujarat",
       "city": "Ahemdabad",
       "cityCode": "ahemdabad",
-      "enabled": true
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
     }
   ]
 }

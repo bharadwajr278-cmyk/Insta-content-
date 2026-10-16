@@ -1,62 +1,189 @@
-# Instagram Reel Monitor
+# Brokket Instagram Reel Automation
 
-A GitHub Actions worker that runs every 15 minutes, monitors configured Instagram profiles, rejects duplicate
-Reel IDs, converts videos to mobile-safe MP4, uploads media to S3, and publishes clips to the app
-API. It runs in GitHub's cloud, so the laptop can be switched off.
+Production Python automation that monitors explicitly authorized Instagram profiles, discovers
+new Reels, prevents duplicate media IDs, validates and normalizes videos, stores them in S3, and
+publishes them to Brokket under the configured app username and city code.
 
-## Security
+## Guarantees
 
-No credential is stored in this repository. Add these encrypted GitHub Actions secrets under
-**Settings → Secrets and variables → Actions**:
+- A global SQLite primary key on the Instagram media ID plus the Brokket
+  `Idempotency-Key: instagram:<media_id>` header prevents duplicate publishing.
+- Each profile has an explicit `createdByUsername`, `cityCode`, `downloadAuthorized`, and
+  `publishAuthorized` mapping. Missing authorization fails closed.
+- Captions begin with `Courtesy @handle`, preserve the source caption, and include source metadata.
+- A 48-hour overlapping lookback catches Reels after delayed or missed GitHub schedules.
+- The durable SQLite ledger is restored from and saved to a private S3 object each run.
+- First incremental scan creates a baseline instead of flooding the app with old posts.
+- Historical import is an explicit `backfill` mode and remains duplicate-safe.
+- One bad profile or Reel is logged and skipped without ending the complete run.
+- Media requests retry; files are size-limited, transcoded to H.264/AAC MP4, probed, and rejected
+  if empty, corrupt, unsupported, or missing a video stream.
 
-- `CLIP_API_URL`
-- `CLIP_API_TOKEN` (optional)
-- `S3_BUCKET`
-- `S3_REGION`
-- `S3_ENDPOINT_URL` (optional for AWS S3)
-- `PUBLIC_BASE_URL`
-- `S3_ACCESS_KEY_ID`
-- `S3_SECRET_ACCESS_KEY`
-- `INSTAGRAM_SESSION_USERNAME`
-- `INSTAGRAM_SESSION_B64`
+## Project layout
 
-Create the last value locally without printing it:
-
-```powershell
-[Convert]::ToBase64String([IO.File]::ReadAllBytes("data/instagram-session")) |
-  Set-Clipboard
+```text
+reel_monitor/
+  cli.py           local/GitHub command entry point
+  config.py        environment and profile validation
+  database.py      SQLite schema, migrations, checkpoints, unique Reel ledger
+  provider.py      authenticated Instagram metadata provider
+  media.py         bounded download, FFmpeg normalization, ffprobe validation
+  storage.py       encrypted S3 upload and public media URL construction
+  publisher.py     Brokket payload and API idempotency
+  persistence.py   S3 restore/save and legacy JSON-state import
+  service.py       rotating discovery, lookback, round-robin processing, recovery
+.github/workflows/monitor.yml   15-minute production workflow
+.github/workflows/test.yml      lint and unit-test workflow
 ```
 
-The worker stores its durable deduplication state at
-`s3://<bucket>/automation/instagram-reel-monitor/state.json`. On the first successful run it
-records a baseline. With `BACKFILL_EXISTING_REELS=true`, baseline IDs are then published gradually
-in profile rotation; otherwise they are only recorded. Later runs publish only unseen Reel IDs.
+## Profile configuration
 
-### Privacy and compliance
+`profiles.json` is the source of truth. A profile is eligible only when both authorization flags
+are true:
 
-- The automation runs on an ephemeral GitHub-hosted runner. The laptop may be switched off, but
-  GitHub and destination services can still see the runner's network address.
-- It does not use a VPN, proxy rotation, browser fingerprint spoofing, or anti-detection behavior.
-- Credentials remain in encrypted GitHub Actions secrets and the restored Instagram session file
-  is restricted to the workflow process on the temporary runner.
-- Signed media URL query strings and fragments are removed from logs so temporary access tokens
-  are not exposed in workflow output.
-- Browser contexts and downloaded media live only for the duration of a run; temporary working
-  directories are deleted after each reel.
+```json
+{
+  "profiles": [
+    {
+      "instagramUsername": "authorized.handle",
+      "createdByUsername": "919999999999",
+      "state": "Gujarat",
+      "city": "Ahmedabad",
+      "cityCode": "ahmedabad",
+      "enabled": true,
+      "downloadAuthorized": true,
+      "publishAuthorized": true
+    }
+  ]
+}
+```
 
-## Safety behavior
+Only set the authorization flags when the content owner/provider permits download and
+republishing. Private, inaccessible, challenged, or unsupported media is skipped.
 
-- One scheduled run at a time through workflow concurrency.
-- Global Reel-ID deduplication across every profile.
-- Existing baseline reels are eligible for controlled backfill, so older reels inside the configured
-  scan window are not hidden by a newer Reel ID that has already been published.
-- Reel ID is reserved in S3 before the API POST. An ambiguous API response is never blindly
-  retried, preventing duplicate posts.
-- Profiles are scanned in rotating batches of five to reduce Instagram rate-limit pressure.
-- Every enabled profile in `profiles.json` is covered by that rotation; with the current schedule,
-  each profile is revisited automatically without requiring the laptop to remain online.
-- Maximum two new reels per profile per run, published round-robin across profiles.
-- Caption starts with `Courtesy @InstagramHandle` and includes the source caption.
-- `cityCode` is always sent as a lowercase city slug.
-- Private profiles and Instagram challenge pages fail closed.
+## Required GitHub Actions secrets
 
+Configure these at **Repository → Settings → Secrets and variables → Actions**:
+
+| Secret | Purpose |
+|---|---|
+| `CLIP_API_URL` | Brokket clip publishing endpoint |
+| `CLIP_API_TOKEN` | Optional bearer token |
+| `S3_BUCKET` | Private media/state bucket name |
+| `S3_REGION` | AWS region, for example `ap-south-1` |
+| `S3_ENDPOINT_URL` | Optional S3-compatible endpoint |
+| `PUBLIC_BASE_URL` | CDN/public base used by the Brokket app |
+| `S3_ACCESS_KEY_ID` | Least-privilege bucket access key |
+| `S3_SECRET_ACCESS_KEY` | Matching secret key |
+| `INSTAGRAM_SESSION_USERNAME` | Instagram account that created the session |
+| `INSTAGRAM_SESSION_B64` | Base64-encoded Instaloader session file |
+| `INSTAGRAM_GRAPH_ACCESS_TOKEN` | Meta token when using the official Graph provider |
+
+Never commit `.env`, session files, AWS CSV files, API tokens, or database files.
+
+### Create the Instagram session secret
+
+Run locally and complete any Instagram challenge interactively:
+
+```powershell
+python -m instaloader --login YOUR_INSTAGRAM_USERNAME
+```
+
+Copy the generated session file to `data/instagram-session`, test it locally, then encode it
+without printing it:
+
+```powershell
+[Convert]::ToBase64String(
+  [IO.File]::ReadAllBytes("data/instagram-session")
+) | Set-Clipboard
+```
+
+Save the clipboard value as `INSTAGRAM_SESSION_B64`. Renew it whenever Instagram invalidates the
+session. The workflow removes the decoded session at the end of every run.
+
+For connected accounts, set repository variable `INSTAGRAM_PROVIDER=graph`, add
+`instagramUserId` to each profile, and configure `INSTAGRAM_GRAPH_ACCESS_TOKEN`. Graph mode is the
+preferred production path because it uses Meta's supported API and does not depend on web-session
+HTML. Session mode remains available for content the authenticated account is permitted to access.
+
+## Local setup
+
+Requirements: Python 3.12+, FFmpeg/ffprobe, S3 credentials, and an authorized Instagram session.
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements-dev.txt
+Copy-Item .env.example .env
+```
+
+Load the environment variables using your preferred secret manager. Then:
+
+```powershell
+python -m reel_monitor.cli validate-config
+python -m reel_monitor.cli sync --mode baseline --dry-run
+python -m reel_monitor.cli sync --mode incremental
+```
+
+The compatibility command `python monitor.py` runs an incremental synchronization.
+
+## Historical import
+
+Backfill is explicit and uses the same unique media-ID ledger:
+
+```powershell
+python -m reel_monitor.cli sync `
+  --mode backfill `
+  --city-code ahemdabad `
+  --backfill-since 2026-09-01T00:00:00+00:00 `
+  --max-publish 20
+```
+
+Reels are queued oldest-first and round-robin across accounts, so one account cannot dominate a
+batch. Previously published, reserved, or ambiguous API submissions are never reclaimed.
+
+## GitHub Actions operation
+
+The production workflow runs every 15 minutes and may also be started with **Run workflow**. Manual
+inputs support city-only synchronization, maximum publish count, incremental/backfill/baseline
+mode, a backfill timestamp, and dry-run.
+
+GitHub schedules are best-effort. Synchronization does not depend on an exact start time: the last
+seen timestamp is persisted and every incremental query overlaps it by `LOOKBACK_HOURS`.
+
+## Brokket API contract
+
+The publisher sends JSON with:
+
+- `createdByUsername`: mapped Brokket app username
+- `text`: `Courtesy @handle`, blank line, then original caption
+- `clipMedia`: public video URL, thumbnail URL, dimensions, duration, MIME type, and size
+- `cityCode`: normalized mapped city code
+- `sourcePlatform`: `instagram`
+- `sourceMediaId`: globally unique Instagram media ID
+- `sourceUrl`: original Reel URL
+
+The API should persist and uniquely index `sourceMediaId` or honor the `Idempotency-Key` header.
+If an API response is lost after submission, the local record becomes `PUBLISH_UNKNOWN` and is not
+blindly retried.
+
+## Database states
+
+- `BASELINE`: observed during first incremental scan; not automatically backfilled
+- `DISCOVERED`: eligible new Reel
+- `PROCESSING`: atomically reserved
+- `STORED`: uploaded to the media bucket
+- `PUBLISHED`: Brokket confirmed the request
+- `FAILED_RETRYABLE`: failure occurred before API submission
+- `PUBLISH_UNKNOWN`: API submission outcome was ambiguous; manual reconciliation required
+
+## Tests
+
+```powershell
+python -m ruff check reel_monitor tests
+python -m pytest -q
+```
+
+Tests cover configuration validation, city normalization, authorization, atomic duplicate claims,
+terminal-state protection, Brokket payload fields, courtesy/caption formatting, and first-baseline
+versus new-Reel behavior.
