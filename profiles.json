@@ -1151,6 +1151,46 @@
       "city": "Chennai",
       "cityCode": "chennai",
       "enabled": true
+    },
+    {
+      "instagramUsername": "shripali_realtors",
+      "createdByUsername": "917477063886",
+      "state": "West Bengal",
+      "city": "Howrah",
+      "cityCode": "howrah",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "greenpropertykolkata",
+      "createdByUsername": "917477063886",
+      "state": "West Bengal",
+      "city": "Howrah",
+      "cityCode": "howrah",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "howrah_.properties",
+      "createdByUsername": "917477063886",
+      "state": "West Bengal",
+      "city": "Howrah",
+      "cityCode": "howrah",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "sspropertykol",
+      "createdByUsername": "917477063886",
+      "state": "West Bengal",
+      "city": "Howrah",
+      "cityCode": "howrah",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "phela_ghar",
+      "createdByUsername": "917477063886",
+      "state": "West Bengal",
+      "city": "Howrah",
+      "cityCode": "howrah",
+      "enabled": true
     }
   ]
 }
