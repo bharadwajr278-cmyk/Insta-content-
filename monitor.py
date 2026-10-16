@@ -210,7 +210,10 @@ class Monitor:
         self.loader.load_session_from_file(self.session_username, self.session_file)
         self.playwright = sync_playwright().start()
         self.browser = self.playwright.chromium.launch(headless=True)
-        self.browser_context = self.browser.new_context()
+        self.browser_context = self.browser.new_context(
+            user_agent=self.loader.context.user_agent,
+            locale="en-US",
+        )
         self.browser_context.add_cookies(
             [
                 {
@@ -473,10 +476,14 @@ class Monitor:
             body = page.locator("body").inner_text().lower()
             if "this account is private" in body:
                 raise PermissionError(f"@{profile.instagram} is private")
+            if "/accounts/login" in page.url or "log in to instagram" in body:
+                raise RuntimeError("Instagram session expired; renew the encrypted session secret")
             if "challenge" in page.url or "verify your identity" in body or "captcha" in body:
                 raise RuntimeError("Instagram login challenge requires manual session renewal")
             page.wait_for_selector(
-                "a[href*='/reel/']", timeout=self.browser_profile_timeout_ms
+                "a[href*='/reel/']",
+                state="attached",
+                timeout=self.browser_profile_timeout_ms,
             )
             hrefs = page.locator("a[href*='/reel/']").evaluate_all(
                 "els => [...new Set(els.map(e => e.href))]"
@@ -927,7 +934,25 @@ class Monitor:
             time.sleep(2)
 
         if not discovered:
-            raise RuntimeError("Instagram discovery failed for every configured profile")
+            # Instagram can temporarily challenge or rate-limit every profile in a
+            # batch. Advancing the cursor prevents one bad batch from blocking all
+            # other configured handles, and a zero exit avoids retrying the exact
+            # same failed requests immediately.
+            if state is None:
+                state = {
+                    "version": 2,
+                    "initializedAt": datetime.now(UTC).isoformat(),
+                    "profilesBaselined": [],
+                    "profileCursor": (cursor + batch_size) % len(profiles),
+                    "reels": {},
+                }
+            else:
+                state["profileCursor"] = (cursor + batch_size) % len(profiles)
+            self.state_store.save(state)
+            LOG.warning(
+                "Instagram discovery unavailable for this batch; cursor advanced and run will retry different profiles next schedule"
+            )
+            return
 
         if state is None:
             state = {
