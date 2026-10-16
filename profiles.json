@@ -1191,6 +1191,62 @@
       "city": "Howrah",
       "cityCode": "howrah",
       "enabled": true
+    },
+    {
+      "instagramUsername": "radherealty.in",
+      "createdByUsername": "917017224408",
+      "state": "Gujarat",
+      "city": "Ahemdabad",
+      "cityCode": "ahemdabad",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "theearthrealty",
+      "createdByUsername": "917017224408",
+      "state": "Gujarat",
+      "city": "Ahemdabad",
+      "cityCode": "ahemdabad",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "dekhorealestate",
+      "createdByUsername": "917017224408",
+      "state": "Gujarat",
+      "city": "Ahemdabad",
+      "cityCode": "ahemdabad",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "gujarat.realestate.guide",
+      "createdByUsername": "917017224408",
+      "state": "Gujarat",
+      "city": "Ahemdabad",
+      "cityCode": "ahemdabad",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "themakaanfactory",
+      "createdByUsername": "917017224408",
+      "state": "Gujarat",
+      "city": "Ahemdabad",
+      "cityCode": "ahemdabad",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "property_king_gj",
+      "createdByUsername": "917017224408",
+      "state": "Gujarat",
+      "city": "Ahemdabad",
+      "cityCode": "ahemdabad",
+      "enabled": true
+    },
+    {
+      "instagramUsername": "aayudhiinfra",
+      "createdByUsername": "917017224408",
+      "state": "Gujarat",
+      "city": "Ahemdabad",
+      "cityCode": "ahemdabad",
+      "enabled": true
     }
   ]
 }

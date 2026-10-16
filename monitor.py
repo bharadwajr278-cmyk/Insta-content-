@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import json
 import logging
 import os
@@ -110,16 +111,33 @@ class Reel:
 
 
 class StateStore:
-    def __init__(self, s3: Any, bucket: str, key: str) -> None:
-        self.s3, self.bucket, self.key = s3, bucket, key
+    def __init__(
+        self, s3: Any, bucket: str, key: str, legacy_key: str | None = None
+    ) -> None:
+        self.s3, self.bucket, self.key, self.legacy_key = s3, bucket, key, legacy_key
 
     def load(self) -> dict[str, Any] | None:
         try:
             response = self.s3.get_object(Bucket=self.bucket, Key=self.key)
         except ClientError as exc:
             if exc.response.get("Error", {}).get("Code") in {"NoSuchKey", "404"}:
-                return None
-            raise
+                if self.legacy_key and self.legacy_key != self.key:
+                    try:
+                        response = self.s3.get_object(
+                            Bucket=self.bucket, Key=self.legacy_key
+                        )
+                        LOG.info("Seeded shard state from legacy monitor state")
+                    except ClientError as legacy_exc:
+                        if legacy_exc.response.get("Error", {}).get("Code") in {
+                            "NoSuchKey",
+                            "404",
+                        }:
+                            return None
+                        raise
+                else:
+                    return None
+            else:
+                raise
         return json.loads(response["Body"].read())
 
     def save(self, state: dict[str, Any]) -> None:
@@ -156,6 +174,16 @@ class Monitor:
             "yes",
         }
         self.profile_batch_size = int(os.getenv("PROFILE_BATCH_SIZE", "5"))
+        self.profile_shard_count = max(1, int(os.getenv("PROFILE_SHARD_COUNT", "1")))
+        self.profile_shard_index = int(os.getenv("PROFILE_SHARD_INDEX", "0"))
+        if not 0 <= self.profile_shard_index < self.profile_shard_count:
+            raise ValueError("PROFILE_SHARD_INDEX must be within PROFILE_SHARD_COUNT")
+        self.browser_profile_timeout_ms = int(
+            os.getenv("BROWSER_PROFILE_TIMEOUT_MS", "12000")
+        )
+        self.browser_detail_timeout_ms = int(
+            os.getenv("BROWSER_DETAIL_TIMEOUT_MS", "20000")
+        )
         self.session_username = required("INSTAGRAM_SESSION_USERNAME")
         self.session_file = Path(required("INSTAGRAM_SESSION_FILE"))
         endpoint = os.getenv("S3_ENDPOINT_URL", "").strip() or None
@@ -166,6 +194,7 @@ class Monitor:
             self.s3,
             self.bucket,
             os.getenv("STATE_OBJECT_KEY", "automation/instagram-reel-monitor/state.json"),
+            os.getenv("LEGACY_STATE_OBJECT_KEY", "").strip() or None,
         )
         self.loader = instaloader.Instaloader(
             download_pictures=False,
@@ -175,7 +204,7 @@ class Monitor:
             compress_json=False,
             quiet=True,
             max_connection_attempts=2,
-            request_timeout=45,
+            request_timeout=20,
             fatal_status_codes=[401, 403, 429],
         )
         self.loader.load_session_from_file(self.session_username, self.session_file)
@@ -194,6 +223,12 @@ class Monitor:
             ]
         )
         self.api_reel_ids: set[str] = set()
+        self.known_reel_ids: set[str] = set()
+
+    def in_configured_shard(self, profile: Profile) -> bool:
+        """Assign profiles to stable shards without moving them when profiles are added."""
+        digest = hashlib.sha256(profile.instagram.casefold().encode()).digest()
+        return int.from_bytes(digest[:8], "big") % self.profile_shard_count == self.profile_shard_index
 
     def fetch_api_reel_ids(self, all_pages: bool = True) -> set[str]:
         """Return Instagram Reel IDs already present in the app feed."""
@@ -412,14 +447,16 @@ class Monitor:
             page.goto(
                 f"https://www.instagram.com/{profile.instagram}/reels/",
                 wait_until="domcontentloaded",
-                timeout=45_000,
+                timeout=self.browser_detail_timeout_ms,
             )
             body = page.locator("body").inner_text().lower()
             if "this account is private" in body:
                 raise PermissionError(f"@{profile.instagram} is private")
             if "challenge" in page.url or "verify your identity" in body or "captcha" in body:
                 raise RuntimeError("Instagram login challenge requires manual session renewal")
-            page.wait_for_selector("a[href*='/reel/']", timeout=30_000)
+            page.wait_for_selector(
+                "a[href*='/reel/']", timeout=self.browser_profile_timeout_ms
+            )
             hrefs = page.locator("a[href*='/reel/']").evaluate_all(
                 "els => [...new Set(els.map(e => e.href))]"
             )
@@ -434,17 +471,24 @@ class Monitor:
             match = re.search(r"/reel/([^/?#]+)/?", url)
             if not match:
                 continue
+            reel_id = match.group(1)
+            if reel_id in self.known_reel_ids:
+                continue
             detail = self.browser_context.new_page()
             try:
                 try:
-                    detail.goto(url, wait_until="domcontentloaded", timeout=45_000)
-                    detail.wait_for_timeout(3_000)
+                    detail.goto(
+                        url,
+                        wait_until="domcontentloaded",
+                        timeout=self.browser_detail_timeout_ms,
+                    )
+                    detail.wait_for_timeout(1_000)
                     videos = detail.locator("video")
                     if videos.count():
                         videos.first.evaluate(
                             "v => { v.muted = true; return v.play().catch(() => null); }"
                         )
-                        detail.wait_for_timeout(2_000)
+                        detail.wait_for_timeout(1_000)
                     published = self.browser_timestamp(detail)
                     resource_video_url, audio_url = self.embedded_media_urls(detail)
                     video_url = (
@@ -495,7 +539,11 @@ class Monitor:
                     )
             finally:
                 detail.close()
-        if not reels:
+        if not reels and not any(
+            re.search(r"/reel/([^/?#]+)/?", url)
+            and re.search(r"/reel/([^/?#]+)/?", url).group(1) in self.known_reel_ids
+            for url in hrefs[: self.browser_scan_limit]
+        ):
             raise RuntimeError(f"No readable reels found for @{profile.instagram}")
         return sorted(reels, key=lambda item: item.published_at, reverse=True)
 
@@ -668,11 +716,10 @@ class Monitor:
             "cityCode": reel.profile.city_code,
         }
         idempotency_suffix = os.getenv("IDEMPOTENCY_SUFFIX", "").strip()
-        # Match the key used by the manual publisher so the API can reject a
-        # Reel that was already sent before this cloud automation saw it.
-        idempotency_key = (
-            f"instagram:{reel.profile.instagram.casefold()}:{reel.reel_id}"
-        )
+        # Reel IDs are globally unique on Instagram. Keep the idempotency key
+        # global too, so simultaneous shard runs cannot publish the same Reel
+        # through two collaborating/profile surfaces.
+        idempotency_key = f"instagram:{reel.reel_id}"
         if idempotency_suffix:
             idempotency_key = f"{idempotency_key}:{idempotency_suffix}"
         headers = {
@@ -817,8 +864,24 @@ class Monitor:
             if not profiles:
                 raise RuntimeError(f"No enabled profiles found for city code: {only_city_code}")
             LOG.info("Manual city filter active: %s (%d profiles)", only_city_code, len(profiles))
+        if self.profile_shard_count > 1:
+            profiles = [profile for profile in profiles if self.in_configured_shard(profile)]
+            if not profiles:
+                LOG.info(
+                    "Shard %d/%d has no configured profiles",
+                    self.profile_shard_index + 1,
+                    self.profile_shard_count,
+                )
+                return
+            LOG.info(
+                "Profile shard %d/%d active (%d profiles)",
+                self.profile_shard_index + 1,
+                self.profile_shard_count,
+                len(profiles),
+            )
         state = self.state_store.load()
         self.api_reel_ids = self.fetch_api_reel_ids(all_pages=True)
+        self.known_reel_ids = self.api_reel_ids | set((state or {}).get("reels", {}))
         LOG.info("Loaded %d existing Reel IDs from app API", len(self.api_reel_ids))
         if state is not None and self.migrate_state(state):
             self.state_store.save(state)
