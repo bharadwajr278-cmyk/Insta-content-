@@ -15,5 +15,6 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -r requirements-dev.txt
+      - run: pip install -e .
       - run: ruff check reel_monitor tests
       - run: pytest -q
