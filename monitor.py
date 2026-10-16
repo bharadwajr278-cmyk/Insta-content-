@@ -267,26 +267,31 @@ class Monitor:
     @staticmethod
     def load_profiles() -> list[Profile]:
         data = json.loads(Path("profiles.json").read_text(encoding="utf-8"))
-        profiles: list[Profile] = []
-        seen: set[str] = set()
+        profiles_by_username: dict[str, Profile] = {}
         for raw in data["profiles"]:
             if not raw.get("enabled", True):
                 continue
             username = raw["instagramUsername"].strip().lstrip("@")
             key = username.casefold()
-            if key in seen:
-                raise ValueError(f"Duplicate enabled Instagram profile: {username}")
-            seen.add(key)
-            profiles.append(
-                Profile(
-                    instagram=username,
-                    app_user=str(raw["createdByUsername"]),
-                    state=raw.get("state", ""),
-                    city=raw.get("city", ""),
-                    city_code=raw.get("cityCode") or slug(raw.get("city", "")),
-                )
+            profile = Profile(
+                instagram=username,
+                app_user=str(raw["createdByUsername"]),
+                state=raw.get("state", ""),
+                city=raw.get("city", ""),
+                city_code=raw.get("cityCode") or slug(raw.get("city", "")),
             )
-        return profiles
+            previous = profiles_by_username.get(key)
+            if previous is not None:
+                logging.warning(
+                    "Duplicate profile @%s: replacing app user %s/%s with latest mapping %s/%s",
+                    username,
+                    previous.app_user,
+                    previous.city_code,
+                    profile.app_user,
+                    profile.city_code,
+                )
+            profiles_by_username[key] = profile
+        return list(profiles_by_username.values())
 
     @staticmethod
     def optional_attribute(page: Any, selector: str, attribute: str) -> str | None:

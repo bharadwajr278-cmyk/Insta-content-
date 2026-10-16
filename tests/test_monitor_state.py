@@ -1,4 +1,5 @@
 from monitor import Monitor, Profile
+import json
 
 
 def test_new_reel_is_publishable() -> None:
@@ -25,3 +26,32 @@ def test_profile_sharding_is_stable_and_exclusive() -> None:
         monitor.profile_shard_index = index
         matches.append(monitor.in_configured_shard(profile))
     assert matches.count(True) == 1
+
+
+def test_duplicate_profile_uses_latest_mapping(tmp_path, monkeypatch) -> None:
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "profiles.json").write_text(
+        json.dumps(
+            {
+                "profiles": [
+                    {
+                        "instagramUsername": "same.handle",
+                        "createdByUsername": "old-user",
+                        "city": "Old City",
+                        "cityCode": "old-city",
+                    },
+                    {
+                        "instagramUsername": "SAME.HANDLE",
+                        "createdByUsername": "new-user",
+                        "city": "New City",
+                        "cityCode": "new-city",
+                    },
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    profiles = Monitor.load_profiles()
+
+    assert profiles == [Profile("SAME.HANDLE", "new-user", "", "New City", "new-city")]
