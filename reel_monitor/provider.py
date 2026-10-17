@@ -38,7 +38,13 @@ class InstagramProvider:
             # Do not send placeholder cookies with empty values. Instagram treats
             # those as malformed browser state and may redirect otherwise valid
             # authenticated profile requests back to the login page (HTTP 302).
-            self.loader.load_session(username, {"sessionid": session_id})
+            # Instaloader requires the CSRF cookie key while restoring a session.
+            # Keep only the two required cookies; empty placeholder values for
+            # ds_user_id/mid/rur can make Instagram redirect profile requests.
+            self.loader.load_session(
+                username,
+                {"sessionid": session_id, "csrftoken": ""},
+            )
         else:
             self.loader.load_session_from_file(username, session_file)
         if not self.loader.test_login():
