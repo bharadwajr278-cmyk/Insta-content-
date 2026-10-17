@@ -35,18 +35,10 @@ class InstagramProvider:
             fatal_status_codes=[401, 403, 429],
         )
         if session_id:
-            self.loader.load_session(
-                username,
-                {
-                    "sessionid": session_id,
-                    "csrftoken": "",
-                    "ds_user_id": "",
-                    "mid": "",
-                    "ig_pr": "1",
-                    "ig_vw": "1920",
-                    "s_network": "",
-                },
-            )
+            # Do not send placeholder cookies with empty values. Instagram treats
+            # those as malformed browser state and may redirect otherwise valid
+            # authenticated profile requests back to the login page (HTTP 302).
+            self.loader.load_session(username, {"sessionid": session_id})
         else:
             self.loader.load_session_from_file(username, session_file)
         if not self.loader.test_login():
