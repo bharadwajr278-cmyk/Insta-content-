@@ -63,6 +63,7 @@ def settings(tmp_path) -> Settings:
         "",
         "instaloader",
         "",
+        "",
         "v24.0",
         30,
         20,

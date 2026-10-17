@@ -79,6 +79,7 @@ def main() -> int:
             MetaGraphProvider(
                 http,
                 settings.instagram_graph_access_token,
+                settings.instagram_graph_caller_user_id,
                 settings.instagram_graph_api_version,
             )
             if settings.instagram_provider == "graph"

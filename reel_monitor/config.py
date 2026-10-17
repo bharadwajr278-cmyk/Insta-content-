@@ -49,6 +49,7 @@ class Settings:
     instagram_session_id: str
     instagram_provider: str
     instagram_graph_access_token: str
+    instagram_graph_caller_user_id: str
     instagram_graph_api_version: str
     scan_limit: int
     accounts_per_run: int
@@ -97,6 +98,9 @@ class Settings:
             instagram_provider=provider,
             instagram_graph_access_token=os.getenv(
                 "INSTAGRAM_GRAPH_ACCESS_TOKEN", ""
+            ).strip(),
+            instagram_graph_caller_user_id=os.getenv(
+                "INSTAGRAM_GRAPH_CALLER_USER_ID", ""
             ).strip(),
             instagram_graph_api_version=os.getenv(
                 "INSTAGRAM_GRAPH_API_VERSION", "v24.0"

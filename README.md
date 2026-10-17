@@ -79,6 +79,7 @@ Configure these at **Repository → Settings → Secrets and variables → Actio
 | `INSTAGRAM_SESSION_ID` | Preferred: Instagram `sessionid` cookie from an authorized browser |
 | `INSTAGRAM_SESSION_B64` | Base64-encoded Instaloader session file |
 | `INSTAGRAM_GRAPH_ACCESS_TOKEN` | Meta token when using the official Graph provider |
+| `INSTAGRAM_GRAPH_CALLER_USER_ID` | Instagram professional account ID connected to the Meta app |
 
 Never commit `.env`, session files, AWS CSV files, API tokens, or database files.
 
@@ -104,10 +105,17 @@ session. Alternatively, set `INSTAGRAM_SESSION_ID` to the `sessionid` cookie fro
 browser session. When both exist, `INSTAGRAM_SESSION_ID` takes precedence and the workflow skips
 the Base64 session-file restore. Never commit or print either secret.
 
-For connected accounts, set repository variable `INSTAGRAM_PROVIDER=graph`, add
-`instagramUserId` to each profile, and configure `INSTAGRAM_GRAPH_ACCESS_TOKEN`. Graph mode is the
-preferred production path because it uses Meta's supported API and does not depend on web-session
-HTML. Session mode remains available for content the authenticated account is permitted to access.
+For Meta Business Discovery, set repository variable `INSTAGRAM_PROVIDER=graph` and configure the
+two Graph secrets above. The caller ID is the numeric Instagram professional-account ID returned by
+`me/accounts?fields=name,instagram_business_account{id,username}` in Graph API Explorer. The token
+must belong to the connected Facebook Page/Instagram professional account and include the Meta
+permissions required for Business Discovery. Individual target profiles no longer need an
+`instagramUserId` value: their configured Instagram username is queried through Business Discovery.
+
+Graph mode is the supported production path and does not depend on Instagram browser cookies.
+Meta Business Discovery can inspect eligible public Business/Creator accounts only; personal or
+private accounts, inaccessible media, and media without an authorized downloadable URL are skipped.
+Do not paste access tokens into chat or screenshots. If exposed, invalidate and regenerate them.
 
 ## Local setup
 
