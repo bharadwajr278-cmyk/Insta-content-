@@ -46,6 +46,7 @@ class Settings:
     public_base_url: str
     instagram_session_username: str
     instagram_session_file: Path
+    instagram_session_id: str
     instagram_provider: str
     instagram_graph_access_token: str
     instagram_graph_api_version: str
@@ -92,6 +93,7 @@ class Settings:
             public_base_url=_required("PUBLIC_BASE_URL").rstrip("/"),
             instagram_session_username=session_username,
             instagram_session_file=session_file,
+            instagram_session_id=os.getenv("INSTAGRAM_SESSION_ID", "").strip(),
             instagram_provider=provider,
             instagram_graph_access_token=os.getenv(
                 "INSTAGRAM_GRAPH_ACCESS_TOKEN", ""

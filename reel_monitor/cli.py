@@ -85,6 +85,7 @@ def main() -> int:
             else InstagramProvider(
                 settings.instagram_session_username,
                 settings.instagram_session_file,
+                settings.instagram_session_id,
             )
         )
         service = ReelSyncService(

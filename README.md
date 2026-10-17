@@ -76,6 +76,7 @@ Configure these at **Repository → Settings → Secrets and variables → Actio
 | `S3_ACCESS_KEY_ID` | Least-privilege bucket access key |
 | `S3_SECRET_ACCESS_KEY` | Matching secret key |
 | `INSTAGRAM_SESSION_USERNAME` | Instagram account that created the session |
+| `INSTAGRAM_SESSION_ID` | Preferred: Instagram `sessionid` cookie from an authorized browser |
 | `INSTAGRAM_SESSION_B64` | Base64-encoded Instaloader session file |
 | `INSTAGRAM_GRAPH_ACCESS_TOKEN` | Meta token when using the official Graph provider |
 
@@ -99,7 +100,9 @@ without printing it:
 ```
 
 Save the clipboard value as `INSTAGRAM_SESSION_B64`. Renew it whenever Instagram invalidates the
-session. The workflow removes the decoded session at the end of every run.
+session. Alternatively, set `INSTAGRAM_SESSION_ID` to the `sessionid` cookie from an authorized
+browser session. When both exist, `INSTAGRAM_SESSION_ID` takes precedence and the workflow skips
+the Base64 session-file restore. Never commit or print either secret.
 
 For connected accounts, set repository variable `INSTAGRAM_PROVIDER=graph`, add
 `instagramUserId` to each profile, and configure `INSTAGRAM_GRAPH_ACCESS_TOKEN`. Graph mode is the

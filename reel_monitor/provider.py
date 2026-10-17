@@ -22,7 +22,7 @@ class ReelProvider(Protocol):
 class InstagramProvider:
     """Authenticated provider for metadata Instagram makes available to the account."""
 
-    def __init__(self, username: str, session_file: Path) -> None:
+    def __init__(self, username: str, session_file: Path, session_id: str = "") -> None:
         self.loader = instaloader.Instaloader(
             download_pictures=False,
             download_videos=False,
@@ -34,9 +34,24 @@ class InstagramProvider:
             request_timeout=30,
             fatal_status_codes=[401, 403, 429],
         )
-        self.loader.load_session_from_file(username, session_file)
+        if session_id:
+            self.loader.load_session(
+                username,
+                {
+                    "sessionid": session_id,
+                    "csrftoken": "",
+                    "ds_user_id": "",
+                    "mid": "",
+                    "ig_pr": "1",
+                    "ig_vw": "1920",
+                    "s_network": "",
+                },
+            )
+        else:
+            self.loader.load_session_from_file(username, session_file)
         if not self.loader.test_login():
-            raise RuntimeError("Instagram session is invalid or expired")
+            source = "INSTAGRAM_SESSION_ID" if session_id else "INSTAGRAM_SESSION_B64"
+            raise RuntimeError(f"Instagram session from {source} is invalid or expired")
 
     def discover(
         self,

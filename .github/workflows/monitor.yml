@@ -51,6 +51,7 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
       INSTAGRAM_SESSION_USERNAME: ${{ secrets.INSTAGRAM_SESSION_USERNAME }}
+      INSTAGRAM_SESSION_ID: ${{ secrets.INSTAGRAM_SESSION_ID }}
       INSTAGRAM_SESSION_FILE: ./data/instagram-session
       INSTAGRAM_PROVIDER: ${{ vars.INSTAGRAM_PROVIDER || 'instaloader' }}
       INSTAGRAM_GRAPH_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_GRAPH_ACCESS_TOKEN }}
@@ -70,8 +71,8 @@ jobs:
       BACKFILL_SINCE: ${{ inputs.backfill_since || '' }}
       DRY_RUN: ${{ inputs.dry_run || 'false' }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
@@ -82,7 +83,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Restore encrypted Instagram session
-        if: env.INSTAGRAM_PROVIDER == 'instaloader'
+        if: env.INSTAGRAM_PROVIDER == 'instaloader' && env.INSTAGRAM_SESSION_ID == ''
         env:
           INSTAGRAM_SESSION_B64: ${{ secrets.INSTAGRAM_SESSION_B64 }}
         run: |
@@ -95,5 +96,5 @@ jobs:
       - name: Monitor and publish new reels
         run: python -m reel_monitor.cli sync
       - name: Remove restored Instagram session
-        if: always() && env.INSTAGRAM_PROVIDER == 'instaloader'
+        if: always() && env.INSTAGRAM_PROVIDER == 'instaloader' && env.INSTAGRAM_SESSION_ID == ''
         run: rm -f -- "$INSTAGRAM_SESSION_FILE"

@@ -60,6 +60,7 @@ def settings(tmp_path) -> Settings:
         "https://media.example",
         "session-user",
         tmp_path / "session",
+        "",
         "instaloader",
         "",
         "v24.0",
