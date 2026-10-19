@@ -76,7 +76,6 @@ Configure these at **Repository → Settings → Secrets and variables → Actio
 | `S3_ACCESS_KEY_ID` | Least-privilege bucket access key |
 | `S3_SECRET_ACCESS_KEY` | Matching secret key |
 | `INSTAGRAM_SESSION_USERNAME` | Instagram account that created the session |
-| `INSTAGRAM_SESSION_ID` | Preferred: Instagram `sessionid` cookie from an authorized browser |
 | `INSTAGRAM_SESSION_B64` | Base64-encoded Instaloader session file |
 | `INSTAGRAM_GRAPH_ACCESS_TOKEN` | Meta token when using the official Graph provider |
 | `INSTAGRAM_GRAPH_CALLER_USER_ID` | Instagram professional account ID connected to the Meta app |
@@ -101,9 +100,8 @@ without printing it:
 ```
 
 Save the clipboard value as `INSTAGRAM_SESSION_B64`. Renew it whenever Instagram invalidates the
-session. Alternatively, set `INSTAGRAM_SESSION_ID` to the `sessionid` cookie from an authorized
-browser session. When both exist, `INSTAGRAM_SESSION_ID` takes precedence and the workflow skips
-the Base64 session-file restore. Never commit or print either secret.
+session. The workflow always restores this encrypted session file for Instaloader mode so a stale
+standalone browser cookie cannot override it. Never commit or print the session secret.
 
 For Meta Business Discovery, set repository variable `INSTAGRAM_PROVIDER=graph` and configure the
 two Graph secrets above. The caller ID is the numeric Instagram professional-account ID returned by
