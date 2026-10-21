@@ -65,9 +65,21 @@ class InstagramProvider:
                 profile.instagram_username,
             )
             return []
-        remote = instaloader.Profile.from_username(
-            self.loader.context, profile.instagram_username
+        # Instaloader 4.15.4 still resolves profiles by loading the public HTML
+        # profile page. Instagram now redirects that route to login (HTTP 302)
+        # on GitHub-hosted runners even when the session itself is valid. Use
+        # Instagram's JSON profile endpoint directly and build the same Profile
+        # object from the returned node.
+        payload = self.loader.context.get_json(
+            "api/v1/users/web_profile_info/",
+            params={"username": profile.instagram_username.lower()},
         )
+        node = (payload.get("data") or {}).get("user")
+        if not node:
+            raise RuntimeError(
+                f"Instagram returned no profile metadata for @{profile.instagram_username}"
+            )
+        remote = instaloader.Profile(self.loader.context, node)
         reels: list[Reel] = []
         for post in remote.get_posts():
             if len(reels) >= limit:
