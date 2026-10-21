@@ -51,6 +51,7 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
       INSTAGRAM_SESSION_USERNAME: ${{ secrets.INSTAGRAM_SESSION_USERNAME }}
+      INSTAGRAM_SESSION_ID: ${{ secrets.INSTAGRAM_SESSION_ID }}
       INSTAGRAM_SESSION_FILE: ./data/instagram-session
       INSTAGRAM_PROVIDER: ${{ vars.INSTAGRAM_PROVIDER || 'instaloader' }}
       INSTAGRAM_GRAPH_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_GRAPH_ACCESS_TOKEN }}
@@ -87,10 +88,14 @@ jobs:
         env:
           INSTAGRAM_SESSION_B64: ${{ secrets.INSTAGRAM_SESSION_B64 }}
         run: |
-          test -n "$INSTAGRAM_SESSION_B64"
-          mkdir -p data
-          printf '%s' "$INSTAGRAM_SESSION_B64" | base64 --decode > "$INSTAGRAM_SESSION_FILE"
-          chmod 600 "$INSTAGRAM_SESSION_FILE"
+          if [ -n "$INSTAGRAM_SESSION_ID" ]; then
+            echo "Using INSTAGRAM_SESSION_ID; ignoring the legacy session file"
+          else
+            test -n "$INSTAGRAM_SESSION_B64"
+            mkdir -p data
+            printf '%s' "$INSTAGRAM_SESSION_B64" | base64 --decode > "$INSTAGRAM_SESSION_FILE"
+            chmod 600 "$INSTAGRAM_SESSION_FILE"
+          fi
       - name: Validate configuration
         run: python -m reel_monitor.cli validate-config
       - name: Monitor and publish new reels
