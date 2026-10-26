@@ -24,6 +24,7 @@ def parser() -> argparse.ArgumentParser:
     sync = subcommands.add_parser("sync", help="Run one synchronization cycle")
     sync.add_argument("--mode", choices=("incremental", "backfill", "baseline"))
     sync.add_argument("--city-code")
+    sync.add_argument("--instagram-username")
     sync.add_argument("--max-publish", type=int)
     sync.add_argument("--backfill-since", help="ISO-8601 timestamp")
     sync.add_argument("--dry-run", action="store_true")
@@ -36,6 +37,8 @@ def _apply_args(args: argparse.Namespace) -> None:
         os.environ["SYNC_MODE"] = args.mode
     if getattr(args, "city_code", None):
         os.environ["ONLY_CITY_CODE"] = args.city_code
+    if getattr(args, "instagram_username", None):
+        os.environ["ONLY_INSTAGRAM_USERNAME"] = args.instagram_username
     if getattr(args, "max_publish", None) is not None:
         os.environ["MAX_PUBLISH_PER_RUN"] = str(args.max_publish)
     if getattr(args, "backfill_since", None):

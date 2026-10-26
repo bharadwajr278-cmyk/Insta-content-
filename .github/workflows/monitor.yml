@@ -9,6 +9,10 @@ on:
         description: Optional cityCode to synchronize exclusively
         required: false
         type: string
+      instagram_username:
+        description: Optional single Instagram username to synchronize
+        required: false
+        type: string
       max_publish:
         description: Maximum Reels to publish (0 means use configured default)
         required: false
@@ -40,7 +44,7 @@ permissions:
 jobs:
   monitor:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 120
     env:
       CLIP_API_URL: ${{ secrets.CLIP_API_URL }}
       CLIP_API_TOKEN: ${{ secrets.CLIP_API_TOKEN }}
@@ -67,7 +71,9 @@ jobs:
       LOOKBACK_HOURS: "48"
       MAX_VIDEO_BYTES: "262144000"
       REQUEST_ATTEMPTS: "4"
+      PROFILE_DELAY_SECONDS: "180"
       ONLY_CITY_CODE: ${{ inputs.city_code || '' }}
+      ONLY_INSTAGRAM_USERNAME: ${{ inputs.instagram_username || '' }}
       SYNC_MODE: ${{ inputs.sync_mode || 'incremental' }}
       BACKFILL_SINCE: ${{ inputs.backfill_since || '' }}
       DRY_RUN: ${{ inputs.dry_run || 'false' }}

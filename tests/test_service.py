@@ -72,6 +72,8 @@ def settings(tmp_path) -> Settings:
         48,
         1000000,
         4,
+        0,
+        "",
         "",
         "incremental",
         "",

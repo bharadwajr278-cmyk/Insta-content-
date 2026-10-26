@@ -58,7 +58,9 @@ class Settings:
     lookback_hours: int
     max_video_bytes: int
     request_attempts: int
+    profile_delay_seconds: int
     only_city_code: str
+    only_instagram_username: str
     mode: str
     backfill_since: str
     dry_run: bool
@@ -112,7 +114,11 @@ class Settings:
             lookback_hours=_integer("LOOKBACK_HOURS", 48, 1),
             max_video_bytes=_integer("MAX_VIDEO_BYTES", 250 * 1024 * 1024, 1),
             request_attempts=_integer("REQUEST_ATTEMPTS", 4, 1),
+            profile_delay_seconds=_integer("PROFILE_DELAY_SECONDS", 180, 0),
             only_city_code=city_slug(os.getenv("ONLY_CITY_CODE", "")),
+            only_instagram_username=os.getenv(
+                "ONLY_INSTAGRAM_USERNAME", ""
+            ).strip().lstrip("@").casefold(),
             mode=mode,
             backfill_since=os.getenv("BACKFILL_SINCE", "").strip(),
             dry_run=_boolean("DRY_RUN"),

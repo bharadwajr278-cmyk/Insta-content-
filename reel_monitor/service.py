@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import tempfile
+import time
 from collections import deque
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -39,6 +40,28 @@ class ReelSyncService:
         self.publisher = publisher
 
     def _selected_profiles(self, profiles: list[Profile]) -> list[Profile]:
+        if self.settings.only_instagram_username:
+            selected = [
+                profile
+                for profile in profiles
+                if profile.instagram_username.casefold()
+                == self.settings.only_instagram_username
+                and (
+                    not self.settings.only_city_code
+                    or profile.city_code == self.settings.only_city_code
+                )
+            ]
+            if not selected:
+                raise RuntimeError(
+                    "No enabled profile matches "
+                    f"@{self.settings.only_instagram_username}"
+                    + (
+                        f" in cityCode={self.settings.only_city_code}"
+                        if self.settings.only_city_code
+                        else ""
+                    )
+                )
+            return selected
         if self.settings.only_city_code:
             selected = [
                 profile
@@ -153,15 +176,17 @@ class ReelSyncService:
         }
         queues: list[deque[Reel]] = []
         try:
-            for profile in selected:
-                if not profile.authorized:
-                    LOG.warning(
-                        "Authorization missing for @%s; skipped",
-                        profile.instagram_username,
-                    )
-                    continue
-                first_scan = self.database.profile_last_seen(profile.instagram_username) is None
+            for profile_index, profile in enumerate(selected):
                 try:
+                    if not profile.authorized:
+                        LOG.warning(
+                            "Authorization missing for @%s; skipped",
+                            profile.instagram_username,
+                        )
+                        continue
+                    first_scan = (
+                        self.database.profile_last_seen(profile.instagram_username) is None
+                    )
                     reels = self.provider.discover(
                         profile,
                         since=self._since_for(profile),
@@ -196,6 +221,16 @@ class ReelSyncService:
                         profile.instagram_username, None, str(exc)[:1000]
                     )
                     LOG.exception("Discovery failed for @%s", profile.instagram_username)
+                finally:
+                    if (
+                        profile_index < len(selected) - 1
+                        and self.settings.profile_delay_seconds
+                    ):
+                        LOG.info(
+                            "Waiting %d seconds before the next Instagram profile",
+                            self.settings.profile_delay_seconds,
+                        )
+                        time.sleep(self.settings.profile_delay_seconds)
 
             if self.settings.dry_run:
                 LOG.info("Dry run complete; no media uploaded or published")
