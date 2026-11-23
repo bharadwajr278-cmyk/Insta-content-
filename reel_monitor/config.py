@@ -9,6 +9,15 @@ from pathlib import Path
 from .models import Profile
 
 
+CITY_CODE_ALIASES = {
+    "ernakulam": "kochi",
+    "cochin": "kochi",
+    "bengaluru": "bangalore",
+    "banglore": "bangalore",
+    "gurgaon": "gurugram",
+}
+
+
 def _required(name: str) -> str:
     value = os.getenv(name, "").strip()
     if not value:
@@ -29,7 +38,8 @@ def _boolean(name: str, default: bool = False) -> bool:
 
 
 def city_slug(value: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "_", value.casefold()).strip("_")
+    slug = re.sub(r"[^a-z0-9]+", "_", value.casefold()).strip("_")
+    return CITY_CODE_ALIASES.get(slug, slug)
 
 
 @dataclass(frozen=True, slots=True)

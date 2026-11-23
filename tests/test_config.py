@@ -3,6 +3,21 @@ import json
 import pytest
 
 from reel_monitor.config import load_profiles
+from reel_monitor.config import city_slug
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("ernakulam", "kochi"),
+        ("Cochin", "kochi"),
+        ("bengaluru", "bangalore"),
+        ("banglore", "bangalore"),
+        ("gurgaon", "gurugram"),
+    ],
+)
+def test_city_slug_canonicalizes_aliases(raw, expected) -> None:
+    assert city_slug(raw) == expected
 
 
 def test_profile_requires_unique_handle_and_normalizes_city(tmp_path) -> None:
